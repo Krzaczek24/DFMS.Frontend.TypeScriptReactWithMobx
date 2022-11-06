@@ -1,5 +1,7 @@
 import './style.css'
-import { Link, useMatch, useResolvedPath } from 'react-router-dom'
+//import { Link, useMatch, useResolvedPath } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
+import { AuthenticationService } from '../../services/AuthenticationService';
 
 export default function Navbar() {
     return (
@@ -8,15 +10,22 @@ export default function Navbar() {
                 {useResolvedPath(to)}
                 useMatch({ path: resolvedPath.pathname, end: true})
             </p> */}
-            <Link to='/' className='navbar-link'>
+            <NavLink to='/' className={x => getClass(x.isActive)}>
                 Strona główna
-            </Link>
-            <Link to='/site-a' className='navbar-link'>
+            </NavLink>
+            <NavLink to='/site-a' className={x => getClass(x.isActive)}>
                 Strona A
-            </Link>
-            <Link to='/site-b' className='navbar-link'>
+            </NavLink>
+            <NavLink to='/site-b' className={x => getClass(x.isActive)}>
                 Strona B
-            </Link>
+            </NavLink>
         </div>
     );
+}
+
+const getClass = (isActive: boolean) => {
+    let classes = ['navbar-link']
+    if (isActive)
+        classes.push('active')
+    return classes.join(' ')
 }

@@ -24,3 +24,6 @@ yarn-error.log*
 
 # Notepad++ temp file
 *.bak
+
+# Visual Studio Code
+/.vscode

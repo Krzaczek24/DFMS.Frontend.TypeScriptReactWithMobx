@@ -1,5 +1,6 @@
 import logo from './../resources/images/logo.svg'
 import './../styles/App.css'
+import Button from 'react-bootstrap/Button'
 
 export default function Main() {
     return (
@@ -13,6 +14,9 @@ export default function Main() {
                 Learn React
             </a>
         </header>
+        <Button variant="primary">
+            Button as link
+        </Button>
         </div>
     );
 }
