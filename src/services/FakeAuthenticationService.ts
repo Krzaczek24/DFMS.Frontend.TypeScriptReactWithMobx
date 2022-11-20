@@ -1,4 +1,4 @@
-import { IUser, LogonOutput, ILogonOutput, User as ApiUser } from '../api/ApiClient'
+import { IUser, LogonOutput, ILogonOutput, User as ApiUser, TokenData } from '../api/ApiClient'
 import { BehaviorSubject } from 'rxjs'
 
 const userLocalStorageKey = 'user';
@@ -52,7 +52,10 @@ async function login() {
             role: 'ADMIN',
             permissions: ['MASTER', 'OF', 'DISASTER']
         }),
-        token: 'raz-dwa-trzy'
+        tokenData: new TokenData({
+            token: 'raz-dwa-trzy',
+            tokenExpiration: new Date(new Date().getMilliseconds() + 1000 * 60 * 60 * 1)
+        })
     }
     localStorage.setItem(userLocalStorageKey, JSON.stringify(x.user))
     userSubject.next(new LogonOutput(x))
@@ -64,5 +67,5 @@ async function logout() {
 }
 
 export const AuthHeader = () => {
-    return { Authorization: `Bearer ${userSubject.value.token}` }
+    return { Authorization: `Bearer ${userSubject.value.tokenData?.token}` }
 }

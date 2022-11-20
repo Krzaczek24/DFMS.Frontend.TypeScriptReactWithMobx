@@ -10,14 +10,17 @@ import ProtectedRoute from './components/ProtectedRoute'
 import RegisterPage from './pages/RegisterPage'
 import LoginPage from './pages/LoginPage'
 import { observer } from 'mobx-react-lite';
+import SelectLanguage from './components/SelectLanguage'
 
 const App = observer(() => {
   if (false) {
-    console.log('Showing authorized user app')
     return (
       <>
         <div className='navbar-container'>
           <Navbar />
+        </div>
+        <div className='language-container'>
+          <SelectLanguage value="en" onChange={() => { }} />
         </div>
         <div className='content-container'>
           <Routes>
@@ -43,9 +46,12 @@ const App = observer(() => {
     )
   }
 
-  console.log('Showing unauthorized user app')
   return (
-    <div className='guest-content-container'>
+    <>
+      <div className='language-container'>
+        <SelectLanguage value="en" onChange={() => { }} />
+      </div>
+      <div className='guest-content-container'>
       <Routes>
         <Route path='/' element={<GreetingPage />} />
         <Route path='/register' element={<RegisterPage />} />
@@ -53,6 +59,7 @@ const App = observer(() => {
         <Route path='*' element={<Navigate to='/' />} />
       </Routes>
     </div>
+    </>
   )
 })
 

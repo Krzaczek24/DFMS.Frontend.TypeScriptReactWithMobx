@@ -3,7 +3,6 @@
     text-align: center;
 
     .greeting-grid {
-
         position: absolute;
         top: 45%;
         left: 50%;
@@ -12,16 +11,27 @@
         transform: translate(-50%, -50%);
 
         .greeting-logo {
-            font-size: 16em;
             text-align: center;
-            line-height: 80%;
+            overflow: hidden;
+            height: 234px;
+            -webkit-user-select: none;
+            user-select: none;
+            
+            a {
+                color: inherit;
+                text-decoration: inherit;
+            }
+
+            .logo {
+                font-size: 16em;
+                line-height: normal;
+            }
         }
     
         .greeting-text {
             font-size: 1.5em;
             text-align: center;
             color: white;
-            margin-bottom: 42px;
         }
 
         .greeting-buttons {

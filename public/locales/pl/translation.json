@@ -1,0 +1,29 @@
+{
+    "common": {
+        "language": "Język"
+    },
+    "greeting": {
+        "subtitle": "Witaj w Dynamic Forms Management System",
+        "login": "Logowanie",
+        "registration": "Rejestracja"
+    },
+    "login": {
+        "subtitle": "Logowanie do systemu",
+        "form": {
+            "username": "Nazwa użytkownika",
+            "password": "Hasło",
+            "sign-in": "Zaloguj",
+            "registration": "Rejestracja"
+        }
+    },
+    "registration": {
+        "subtitle": "Rejestracja nowego użytkownika w systemie",
+        "form": {
+            "username": "Nazwa użytkownika",
+            "password": "Hasło",
+            "repeat-password": "Powtórz hasło",
+            "register": "Zarejestruj",
+            "login": "Logowanie"
+        }
+    }
+}

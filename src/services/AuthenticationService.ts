@@ -65,5 +65,5 @@ async function logout() {
 }
 
 export const AuthHeader = () => {
-    return { Authorization: `Bearer ${userSubject.value.token}` }
+    return { Authorization: `Bearer ${userSubject.value.tokenData?.token}` }
 }

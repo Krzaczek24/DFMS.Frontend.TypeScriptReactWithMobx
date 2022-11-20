@@ -1,40 +1,44 @@
 import './../styles/greeting.scss'
-import { Container, Row, Col, Button } from 'react-bootstrap';
 import AuthenticationService from '../services/FakeAuthenticationService';
+import { useTranslation } from 'react-i18next'
+import { Container, Row, Col, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { LogClickedButtonEvent } from '../helpers/GlobalFunctions';
 
 const GreetingPage = () => {
+    const { t } = useTranslation()
+
     return (
         <div className='greeting-container'>
             <Container className='greeting-grid'>
                 <Row className='greeting-logo'>
                     <Col>
-                        <span className='logo'>
-                            DFMS
-                        </span>
+                        <Link to='/'>
+                            <span className='logo'>
+                                DFMS
+                            </span>
+                        </Link>
                     </Col>
                 </Row>
                 <Row className='greeting-text'>
                     <Col>
                         <span>
-                            Witaj w Dynamic Forms Management System
+                            {t('greeting.subtitle')}
                         </span>
                     </Col>
                 </Row>
-                <Row className='greeting-buttons justify-content-md-center' xs='auto'>
+                <Row className='greeting-buttons justify-content-md-center mt-5' xs='auto'>
                     <Col>
                         <Link to='/login'>
-                            <Button variant='primary' size='lg' onClick={LogClickedButtonEvent}>
-                                Logowanie
+                            <Button variant='primary' size='lg'>
+                                {t('greeting.login')}
                             </Button>
                         </Link>
                     </Col>
                     <Col xs={1}/>
                     <Col>
                         <Link to='/register'>
-                            <Button variant='secondary' size='lg' onClick={LogClickedButtonEvent}>
-                                Rejestracja
+                            <Button variant='secondary' size='lg'>
+                                {t('greeting.registration')}
                             </Button>
                         </Link>
                     </Col>
