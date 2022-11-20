@@ -1514,7 +1514,7 @@ export interface ILogonInput {
 
 export class LogonOutput implements ILogonOutput {
     user?: User;
-    token?: string | undefined;
+    tokenData?: TokenData;
 
     constructor(data?: ILogonOutput) {
         if (data) {
@@ -1528,7 +1528,7 @@ export class LogonOutput implements ILogonOutput {
     init(_data?: any) {
         if (_data) {
             this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-            this.token = _data["token"];
+            this.tokenData = _data["tokenData"] ? TokenData.fromJS(_data["tokenData"]) : <any>undefined;
         }
     }
 
@@ -1542,14 +1542,14 @@ export class LogonOutput implements ILogonOutput {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        data["token"] = this.token;
+        data["tokenData"] = this.tokenData ? this.tokenData.toJSON() : <any>undefined;
         return data;
     }
 }
 
 export interface ILogonOutput {
     user?: User;
-    token?: string | undefined;
+    tokenData?: TokenData;
 }
 
 export class Permission implements IPermission {
@@ -1746,6 +1746,46 @@ export class RegisterOutput implements IRegisterOutput {
 
 export interface IRegisterOutput {
     user?: User;
+}
+
+export class TokenData implements ITokenData {
+    token?: string | undefined;
+    tokenExpiration?: Date;
+
+    constructor(data?: ITokenData) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.token = _data["token"];
+            this.tokenExpiration = _data["tokenExpiration"] ? new Date(_data["tokenExpiration"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): TokenData {
+        data = typeof data === 'object' ? data : {};
+        let result = new TokenData();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["token"] = this.token;
+        data["tokenExpiration"] = this.tokenExpiration ? this.tokenExpiration.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ITokenData {
+    token?: string | undefined;
+    tokenExpiration?: Date;
 }
 
 export class UpdatePermissionGroupInput implements IUpdatePermissionGroupInput {

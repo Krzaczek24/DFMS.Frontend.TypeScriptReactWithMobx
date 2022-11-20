@@ -7,14 +7,17 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "bootstrap": "^5.2.2",
-    "hasha": "^5.2.2",
+    "crypto-js": "^4.1.1",
     "mobx-react": "^7.5.3",
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^4.6.0",
     "react-router-dom": "^6.4.3",
     "react-scripts": "5.0.1",
     "rxjs": "^7.5.7",
+    "sass": "^1.56.1",
+    "sha512-crypt-ts": "^0.1.27",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

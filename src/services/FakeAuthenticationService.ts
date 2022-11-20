@@ -1,18 +1,15 @@
-import { IAuthenticationClient, AuthenticationClient, IUser, LogonInput, LogonOutput, RegisterInput, RegisterOutput } from '../api/ApiClient'
+import { IUser, LogonOutput, ILogonOutput, User as ApiUser } from '../api/ApiClient'
 import { BehaviorSubject } from 'rxjs'
-import { sha512 } from 'sha512-crypt-ts';
 
 const userLocalStorageKey = 'user';
 const userSubject = new BehaviorSubject<LogonOutput>(JSON.parse(localStorage.getItem(userLocalStorageKey)!))
-const api: IAuthenticationClient = new AuthenticationClient()
-const hash = (password: string) => sha512.crypt(password, '$6$rounds=1000$saltValue')
 const isLoggedIn = () => userSubject.value ? true : false
 
 const AuthenticationService = {
-    register,
     login,
     logout,
     isLoggedIn,
+    logonData: userSubject.asObservable(),
     get user() { return <User><IUser>userSubject.value.user }
 }
 
@@ -45,18 +42,20 @@ export class User implements IUser {
     }
 }
 
-async function register(username: string, password: string, roleId: number, firstName: string, lastName: string) {
-    let input = new RegisterInput({ username, passwordHash: hash(password), roleId, firstName, lastName })
-    await api.register(input)
-    await login(username, password)
-}
-
-async function login(username: string, password: string) {
-    let input = new LogonInput({ username, passwordHash: hash(password) })
-    let response = await api.authenticate(input)
-
-    localStorage.setItem(userLocalStorageKey, JSON.stringify(response.user))
-    userSubject.next(response.user!)
+async function login() {
+    let x: ILogonOutput = {
+        user: new ApiUser({
+            id: 42,
+            firstName: 'Tomaszko',
+            lastName: 'Drefko',
+            login: 'Krzaczysław',
+            role: 'ADMIN',
+            permissions: ['MASTER', 'OF', 'DISASTER']
+        }),
+        token: 'raz-dwa-trzy'
+    }
+    localStorage.setItem(userLocalStorageKey, JSON.stringify(x.user))
+    userSubject.next(new LogonOutput(x))
 }
 
 async function logout() {
