@@ -1,26 +1,24 @@
-import { makeAutoObservable } from 'mobx'
 import React from 'react'
+import LoginStore from './forms/LoginStore'
+import RegisterStore from './forms/RegisterStore'
 import PermissionStore from './PermissionStore'
 import UserStore from './UserStore'
 
-export default class RootStore {
-    userStore: UserStore
+class RootStore {
+    loginStore: LoginStore
     permissionStore: PermissionStore
+    registerStore: RegisterStore
+    userStore: UserStore
 
     constructor() {
-        this.userStore = new UserStore(this)
+        this.loginStore = new LoginStore(this)
         this.permissionStore = new PermissionStore(this)
+        this.registerStore = new RegisterStore(this)
+        this.userStore = new UserStore(this)
     }
 }
 
-export abstract class StoreBase {
-    rootStore: RootStore
-
-    constructor(rootStore: RootStore) {
-        this.rootStore = rootStore
-        makeAutoObservable(this)
-    }
-}
+export default RootStore
 
 const StoresContext = React.createContext(new RootStore())
 

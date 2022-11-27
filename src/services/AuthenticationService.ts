@@ -14,7 +14,10 @@ const AuthenticationService = {
     login,
     logout,
     isLoggedIn,
-    token: tokenSubject.asObservable(),
+    //: tokenSubject.asObservable(),
+    get token() {
+        return tokenSubject.value
+    },
     get user() {
         return getTokenData() as User
     },
@@ -60,6 +63,7 @@ async function login(username: string, password: string) {
     let input = new LogonInput({ username, passwordHash: sha512.base64(password) })
     let token = await api.authenticate(input)
 
+    console.log(token)
     localStorage.setItem(tokenLocalStorageKey, token)
     tokenSubject.next(token)
 }
@@ -67,8 +71,4 @@ async function login(username: string, password: string) {
 async function logout() {
     localStorage.removeItem(tokenLocalStorageKey)
     tokenSubject.next(null!);
-}
-
-export const AuthHeader = () => {
-    return { Authorization: `Bearer ${tokenSubject.value}` }
 }

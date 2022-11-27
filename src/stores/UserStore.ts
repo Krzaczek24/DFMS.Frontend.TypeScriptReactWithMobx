@@ -1,8 +1,13 @@
-import RootStore, { StoreBase } from '.'
+import IStore from './IStore'
+import RootStore from '.'
+import { makeAutoObservable } from 'mobx'
 
-class UserStore extends StoreBase {
+class UserStore implements IStore {
+    rootStore: RootStore
+
     constructor(rootStore: RootStore) {
-        super(rootStore)
+        this.rootStore = rootStore
+        makeAutoObservable(this)
     }
 }
 
