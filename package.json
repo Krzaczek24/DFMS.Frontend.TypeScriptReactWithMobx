@@ -11,6 +11,7 @@
     "crypto-js": "^4.1.1",
     "i18next-browser-languagedetector": "^7.0.1",
     "i18next-http-backend": "^2.0.1",
+    "jwt-decode": "^3.1.2",
     "mobx-react": "^7.5.3",
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",

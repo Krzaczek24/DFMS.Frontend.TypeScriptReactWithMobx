@@ -1,5 +1,4 @@
 import i18n from '../i18n'
-import { ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, InputGroup } from 'react-bootstrap'
 
@@ -12,7 +11,8 @@ interface I18nConfig {
 const i18nConfig: I18nConfig = {
     supportedLocales: {
         en: 'English',
-        pl: 'Polski'
+        pl: 'Polski',
+        ua: 'Українська'
     }
 }
 

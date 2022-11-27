@@ -1,6 +1,6 @@
 import './../styles/navbar.scss'
 //import { Link, useMatch, useResolvedPath } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { FaPowerOff, FaUser } from 'react-icons/fa'
 import AuthenticationService from '../services/FakeAuthenticationService';
 
@@ -27,10 +27,7 @@ const Navbar = () => {
                         <FaPowerOff/> Strona B
                     </Link>
                 </li>
-                <LinkItem path='site-b' title={<><FaPowerOff/> Logout</>} onClick={() => {
-                    console.log('Logout button has been clicked')
-                    AuthenticationService.logout()
-                }}/>
+                <LinkItem path='site-b' title={<><FaPowerOff/> Logout</>} onClick={AuthenticationService.logout} />
             </ul>
         </div>
     );

@@ -1,21 +1,34 @@
-import { IUser, LogonOutput, ILogonOutput, User as ApiUser, TokenData } from '../api/ApiClient'
-import { BehaviorSubject } from 'rxjs'
+// PRZEROBIĆ NA STORE
 
-const userLocalStorageKey = 'user';
-const userSubject = new BehaviorSubject<LogonOutput>(JSON.parse(localStorage.getItem(userLocalStorageKey)!))
-const isLoggedIn = () => userSubject.value ? true : false
+import { IUser } from '../api/ApiClient'
+import { BehaviorSubject } from 'rxjs'
+import jwt_decode from 'jwt-decode'
+
+const tokenLocalStorageKey = 'tokenKey';
+const tokenSubject = new BehaviorSubject<string>(localStorage.getItem(tokenLocalStorageKey) ?? '')
+const getTokenData = () => {
+    if (tokenSubject.value?.length > 0) {
+        return Object.assign(new TokenData(), jwt_decode(tokenSubject.value) as TokenData)
+    }
+    return null
+}
 
 const AuthenticationService = {
     login,
     logout,
     isLoggedIn,
-    logonData: userSubject.asObservable(),
-    get user() { return <User><IUser>userSubject.value.user }
+    token: tokenSubject.asObservable(),
+    get user() {
+        return getTokenData() as User
+    },
+    get tokenExpirationDate() {
+        return getTokenData()?.expirationDate
+    }
 }
 
 export default AuthenticationService
 
-export type Role = 'ADMIN' | 'MODERATOR' | 'MANAGER' | 'USER'
+export type Role = 'ADMIN' | 'MODERATOR' | 'MANAGER' | 'USER' | 'BLOCKED'
 
 export class User implements IUser {
     id!: number
@@ -24,48 +37,37 @@ export class User implements IUser {
     permissions!: string[]
     firstName: string | undefined
     lastName: string | undefined
-    hasPermission(permission: string): boolean {
-        return this.permissions.includes(permission)
+    hasPermission = (permission: string): boolean => this.permissions?.includes(permission)
+    hasAnyPermission = (permissions: string[]): boolean => permissions.some(this.hasPermission)
+    hasAllPermissions = (permissions: string[]): boolean => permissions.every(this.hasPermission)
+}
+
+class TokenData extends User {
+    iat!: number
+    get issueDate() {
+        return new Date(this.iat * 1000)
     }
-    hasAnyPermission(permissions: string[]): boolean {
-        let hasAnyPermission = false
-        permissions.forEach(permission => {
-            if (this.permissions.includes(permission)) {
-                hasAnyPermission = true
-                return
-            }
-        });
-        return hasAnyPermission
-    }
-    hasAllPermissions(permissions: string[]): boolean {
-        return permissions.every(permission => this.permissions.includes(permission))
+    exp!: number
+    get expirationDate() {
+        return new Date(this.exp * 1000)
     }
 }
 
 async function login() {
-    let x: ILogonOutput = {
-        user: new ApiUser({
-            id: 42,
-            firstName: 'Tomaszko',
-            lastName: 'Drefko',
-            login: 'Krzaczysław',
-            role: 'ADMIN',
-            permissions: ['MASTER', 'OF', 'DISASTER']
-        }),
-        tokenData: new TokenData({
-            token: 'raz-dwa-trzy',
-            tokenExpiration: new Date(new Date().getMilliseconds() + 1000 * 60 * 60 * 1)
-        })
-    }
-    localStorage.setItem(userLocalStorageKey, JSON.stringify(x.user))
-    userSubject.next(new LogonOutput(x))
+    let token = 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJsb2dpbiI6IktyemFjemVrIiwibmFtZSI6IktyemFjemVrIiwicm9sZSI6IkFETUlOIiwiZmlyc3ROYW1lIjoiIiwibGFzdE5hbWUiOiIiLCJwZXJtaXNzaW9ucyI6IlRFU1RPV0VfUFJBV08iLCJsYXN0TG9naW5EYXRlIjoiMjAyMi0xMS0yNyAwNDoyMjo1MiIsIm5iZiI6MTY2OTUyMjk3MiwiZXhwIjoxNjY5NTI2NTcyLCJpYXQiOjE2Njk1MjI5NzJ9.XMCdcCOdCqKjagaTdjxPwHov7_fcVwfU_0IDXPtaqGr7MsKNwe0eG-_QLWbNskTvBFv8RNStibQjkWA7rsrqcQ'
+    localStorage.setItem(tokenLocalStorageKey, token)
+    tokenSubject.next(token)
 }
 
 async function logout() {
-    localStorage.removeItem(userLocalStorageKey)
-    userSubject.next(null!);
+    localStorage.removeItem(tokenLocalStorageKey)
+    tokenSubject.next(null!);
+}
+
+function isLoggedIn() {
+    return getTokenData()?.iat != null
 }
 
 export const AuthHeader = () => {
-    return { Authorization: `Bearer ${userSubject.value.tokenData?.token}` }
+    return { Authorization: `Bearer ${tokenSubject.value}` }
 }

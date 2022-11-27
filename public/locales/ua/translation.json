@@ -1,0 +1,29 @@
+{
+    "common": {
+        "language": "Язик"
+    },
+    "greeting": {
+        "subtitle": "Ласкаво просимо до Dynamic Forms Management System",
+        "login": "Увійти",
+        "registration": "Реєстрація"
+    },
+    "login": {
+        "subtitle": "Увійти в систему",
+        "form": {
+            "username": "Ім'я користувача",
+            "password": "Пароль",
+            "sign-in": "Логін",
+            "registration": "Реєстрація"
+        }
+    },
+    "registration": {
+        "subtitle": "Реєстрація нового користувача в системі",
+        "form": {
+            "username": "Ім'я користувача",
+            "password": "Пароль",
+            "repeat-password": "Повторіть пароль",
+            "register": "Зареєструватися",
+            "login": "Увійти"
+        }
+    }
+}

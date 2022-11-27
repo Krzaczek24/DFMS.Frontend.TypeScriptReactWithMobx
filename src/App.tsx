@@ -13,7 +13,7 @@ import { observer } from 'mobx-react-lite';
 import SelectLanguage from './components/SelectLanguage'
 
 const App = observer(() => {
-  if (false) {
+  if (FakeAuthenticationService.isLoggedIn()) {
     return (
       <>
         <div className='navbar-container'>
@@ -25,20 +25,7 @@ const App = observer(() => {
         <div className='content-container'>
           <Routes>
             <Route path='/' element={<HomePage />} />
-            {/* <ProtectedRoute path='/protected' element={<SiteA />} /> */}
-            {/* <Route path='/protected'>
-              {(() => {
-                  const { isLoggedIn, user } = AuthenticationService
-                  const roles = ['raz']
-                  const permissions = ['dwa']
-                  if (!isLoggedIn()
-                  || (roles && roles.length > 0 && roles.every(role => user.role !== role))
-                  || (permissions && permissions.length > 0 && !user.hasAnyPermission(permissions))) {
-                    //return <Route path='/protected' element={<Navigate to='guest' />} />
-                  }
-                  return <SiteB />
-              })()}
-            </Route> */}
+            <Route path='/protected' element={<ProtectedRoute roles={['ADMIN']} permissions={['TESTOWE_PRAWO']} element={<LoginPage />} />} />
             <Route path='*' element={<Navigate to='/' />} />
           </Routes>
         </div>

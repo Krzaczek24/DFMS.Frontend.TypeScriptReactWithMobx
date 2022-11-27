@@ -14,13 +14,13 @@ export interface IAuthenticationClient {
      * @param body (optional) 
      * @return Success
      */
-    authenticate(body: LogonInput | undefined): Promise<LogonOutput>;
+    authenticate(body: LogonInput | undefined): Promise<string>;
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    register(body: RegisterInput | undefined): Promise<RegisterOutput>;
+    register(body: RegisterInput | undefined): Promise<User>;
 }
 
 export class AuthenticationClient implements IAuthenticationClient {
@@ -37,7 +37,7 @@ export class AuthenticationClient implements IAuthenticationClient {
      * @param body (optional) 
      * @return Success
      */
-    authenticate(body: LogonInput | undefined): Promise<LogonOutput> {
+    authenticate(body: LogonInput | undefined): Promise<string> {
         let url_ = this.baseUrl + "/authenticate";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -57,14 +57,15 @@ export class AuthenticationClient implements IAuthenticationClient {
         });
     }
 
-    protected processAuthenticate(response: Response): Promise<LogonOutput> {
+    protected processAuthenticate(response: Response): Promise<string> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = LogonOutput.fromJS(resultData200);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -72,14 +73,14 @@ export class AuthenticationClient implements IAuthenticationClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<LogonOutput>(null as any);
+        return Promise.resolve<string>(null as any);
     }
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    register(body: RegisterInput | undefined): Promise<RegisterOutput> {
+    register(body: RegisterInput | undefined): Promise<User> {
         let url_ = this.baseUrl + "/register";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -99,14 +100,14 @@ export class AuthenticationClient implements IAuthenticationClient {
         });
     }
 
-    protected processRegister(response: Response): Promise<RegisterOutput> {
+    protected processRegister(response: Response): Promise<User> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RegisterOutput.fromJS(resultData200);
+            result200 = User.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -114,7 +115,7 @@ export class AuthenticationClient implements IAuthenticationClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<RegisterOutput>(null as any);
+        return Promise.resolve<User>(null as any);
     }
 }
 
@@ -1512,46 +1513,6 @@ export interface ILogonInput {
     passwordHash: string;
 }
 
-export class LogonOutput implements ILogonOutput {
-    user?: User;
-    tokenData?: TokenData;
-
-    constructor(data?: ILogonOutput) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-            this.tokenData = _data["tokenData"] ? TokenData.fromJS(_data["tokenData"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): LogonOutput {
-        data = typeof data === 'object' ? data : {};
-        let result = new LogonOutput();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        data["tokenData"] = this.tokenData ? this.tokenData.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface ILogonOutput {
-    user?: User;
-    tokenData?: TokenData;
-}
-
 export class Permission implements IPermission {
     id?: number;
     name?: string | undefined;
@@ -1663,7 +1624,6 @@ export interface IPermissionGroup {
 export class RegisterInput implements IRegisterInput {
     username!: string;
     passwordHash!: string;
-    roleId!: number;
     firstName?: string | undefined;
     lastName?: string | undefined;
 
@@ -1680,7 +1640,6 @@ export class RegisterInput implements IRegisterInput {
         if (_data) {
             this.username = _data["username"];
             this.passwordHash = _data["passwordHash"];
-            this.roleId = _data["roleId"];
             this.firstName = _data["firstName"];
             this.lastName = _data["lastName"];
         }
@@ -1697,7 +1656,6 @@ export class RegisterInput implements IRegisterInput {
         data = typeof data === 'object' ? data : {};
         data["username"] = this.username;
         data["passwordHash"] = this.passwordHash;
-        data["roleId"] = this.roleId;
         data["firstName"] = this.firstName;
         data["lastName"] = this.lastName;
         return data;
@@ -1707,85 +1665,8 @@ export class RegisterInput implements IRegisterInput {
 export interface IRegisterInput {
     username: string;
     passwordHash: string;
-    roleId: number;
     firstName?: string | undefined;
     lastName?: string | undefined;
-}
-
-export class RegisterOutput implements IRegisterOutput {
-    user?: User;
-
-    constructor(data?: IRegisterOutput) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.user = _data["user"] ? User.fromJS(_data["user"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): RegisterOutput {
-        data = typeof data === 'object' ? data : {};
-        let result = new RegisterOutput();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IRegisterOutput {
-    user?: User;
-}
-
-export class TokenData implements ITokenData {
-    token?: string | undefined;
-    tokenExpiration?: Date;
-
-    constructor(data?: ITokenData) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.token = _data["token"];
-            this.tokenExpiration = _data["tokenExpiration"] ? new Date(_data["tokenExpiration"].toString()) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): TokenData {
-        data = typeof data === 'object' ? data : {};
-        let result = new TokenData();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["token"] = this.token;
-        data["tokenExpiration"] = this.tokenExpiration ? this.tokenExpiration.toISOString() : <any>undefined;
-        return data;
-    }
-}
-
-export interface ITokenData {
-    token?: string | undefined;
-    tokenExpiration?: Date;
 }
 
 export class UpdatePermissionGroupInput implements IUpdatePermissionGroupInput {
