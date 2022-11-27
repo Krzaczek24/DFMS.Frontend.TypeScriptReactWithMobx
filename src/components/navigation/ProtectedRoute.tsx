@@ -1,6 +1,6 @@
 import { ReactElement } from 'react'
 import { Navigate } from 'react-router-dom'
-import AuthenticationService, { Role } from '../services/FakeAuthenticationService'
+import AuthenticationService, { Role } from '../../services/AuthenticationService'
 
 type ProtectedProps = {
     element: ReactElement,

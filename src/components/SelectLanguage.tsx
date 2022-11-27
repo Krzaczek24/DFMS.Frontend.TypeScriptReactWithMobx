@@ -22,20 +22,22 @@ const renderOption = (value: string, label: string) => {
 
 interface SelectLanuageProps {
     value: string
-    onChange(value: string): void
+    onChange?(value: string): void
 }
 
 const SelectLanguage = (props: SelectLanuageProps) => {
     const { t } = useTranslation()
     return (
-        <InputGroup size='lg'>
-            <InputGroup.Text id='language'>
-                {t('common.language')}
-            </InputGroup.Text>
-            <Form.Select id='change-language-select' size='lg' defaultValue={i18n.language} onChange={e => i18n.changeLanguage(e.target.value)}>
-                {Object.keys(i18nConfig.supportedLocales).sort().map(key => renderOption(key, i18nConfig.supportedLocales[key]))}
-            </Form.Select>
-        </InputGroup> 
+        <div className='language-container'>
+            <InputGroup size='lg'>
+                <InputGroup.Text id='language'>
+                    {t('common.language')}
+                </InputGroup.Text>
+                <Form.Select id='change-language-select' size='lg' defaultValue={i18n.language} onChange={e => i18n.changeLanguage(e.target.value)}>
+                    {Object.keys(i18nConfig.supportedLocales).sort().map(key => renderOption(key, i18nConfig.supportedLocales[key]))}
+                </Form.Select>
+            </InputGroup> 
+        </div>
     )
 }
 

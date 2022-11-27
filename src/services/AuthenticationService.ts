@@ -1,76 +1,74 @@
-// import { IAuthenticationClient, AuthenticationClient, IUser, LogonInput, LogonOutput, RegisterInput, RegisterOutput } from '../api/ApiClient'
-// import { BehaviorSubject } from 'rxjs'
-// import { sha512 } from 'sha512-crypt-ts';
+import { IAuthenticationClient, AuthenticationClient, IUser, LogonInput, RegisterInput } from '../api/ApiClient'
+import { BehaviorSubject } from 'rxjs'
+import { sha512 } from 'sha512-crypt-ts';
+import jwt_decode from 'jwt-decode'
 
-// const userLocalStorageKey = 'user';
-// const userSubject = new BehaviorSubject<LogonOutput>(JSON.parse(localStorage.getItem(userLocalStorageKey)!))
-// const api: IAuthenticationClient = new AuthenticationClient()
-// const hash = (password: string) => sha512.crypt(password, '$6$rounds=1000$saltValue')
-// const isLoggedIn = () => {
-//     console.log("userSubject", userSubject)
-//     console.log("userSubject.value", userSubject.value)
-//     return userSubject.value ? true : false
-// }
+const api = new AuthenticationClient() as IAuthenticationClient
+const tokenLocalStorageKey = 'tokenKey'
+const tokenSubject = new BehaviorSubject<string>(localStorage.getItem(tokenLocalStorageKey) ?? '')
+const getTokenData = () => tokenSubject.value?.length > 0 ? Object.assign(new TokenData(), jwt_decode(tokenSubject.value) as TokenData) : null
+const isLoggedIn = () => getTokenData()?.iat != null
 
-// const AuthenticationService = {
-//     register,
-//     login,
-//     logout,
-//     isLoggedIn,
-//     get user() { return <User><IUser>userSubject.value.user }
-// }
+const AuthenticationService = {
+    register,
+    login,
+    logout,
+    isLoggedIn,
+    token: tokenSubject.asObservable(),
+    get user() {
+        return getTokenData() as User
+    },
+    get tokenExpirationDate() {
+        return getTokenData()?.expirationDate
+    }
+}
 
-// export default AuthenticationService
-
-// export type Role = 'ADMIN' | 'MODERATOR' | 'MANAGER' | 'USER'
-
-// export class User implements IUser {
-//     id!: number
-//     login!: string | undefined
-//     role!: Role
-//     permissions!: string[]
-//     firstName: string | undefined
-//     lastName: string | undefined
-//     hasPermission(permission: string): boolean {
-//         return this.permissions.includes(permission)
-//     }
-//     hasAnyPermission(permissions: string[]): boolean {
-//         let hasAnyPermission = false
-//         permissions.forEach(permission => {
-//             if (this.permissions.includes(permission)) {
-//                 hasAnyPermission = true
-//                 return
-//             }
-//         });
-//         return hasAnyPermission
-//     }
-//     hasAllPermissions(permissions: string[]): boolean {
-//         return permissions.every(permission => this.permissions.includes(permission))
-//     }
-// }
-
-// async function register(username: string, password: string, roleId: number, firstName: string, lastName: string) {
-//     let input = new RegisterInput({ username, passwordHash: hash(password), roleId, firstName, lastName })
-//     await api.register(input)
-//     await login(username, password)
-// }
-
-// async function login(username: string, password: string) {
-//     let input = new LogonInput({ username, passwordHash: hash(password) })
-//     let response = await api.authenticate(input)
-
-//     localStorage.setItem(userLocalStorageKey, JSON.stringify(response.user))
-//     userSubject.next(response.user!)
-// }
-
-// async function logout() {
-//     localStorage.removeItem(userLocalStorageKey)
-//     userSubject.next(null!);
-// }
-
-// export const AuthHeader = () => {
-//     return { Authorization: `Bearer ${userSubject.value.tokenData?.token}` }
-// }
-
-const AuthenticationService = {}
 export default AuthenticationService
+
+export type Role = 'ADMIN' | 'MODERATOR' | 'MANAGER' | 'USER' | 'BLOCKED'
+
+export class User implements IUser {
+    id!: number
+    login!: string | undefined
+    role!: Role
+    permissions!: string[]
+    firstName: string | undefined
+    lastName: string | undefined
+    hasPermission = (permission: string): boolean => this.permissions?.includes(permission)
+    hasAnyPermission = (permissions: string[]): boolean => permissions.some(this.hasPermission)
+    hasAllPermissions = (permissions: string[]): boolean => permissions.every(this.hasPermission)
+}
+
+class TokenData extends User {
+    iat!: number
+    get issueDate() {
+        return new Date(this.iat * 1000)
+    }
+    exp!: number
+    get expirationDate() {
+        return new Date(this.exp * 1000)
+    }
+}
+
+async function register(username: string, password: string, firstName: string, lastName: string) {
+    let input = new RegisterInput({ username, passwordHash: sha512.base64(password), firstName, lastName })
+    await api.register(input)
+    //await login(username, password)
+}
+
+async function login(username: string, password: string) {
+    let input = new LogonInput({ username, passwordHash: sha512.base64(password) })
+    let token = await api.authenticate(input)
+
+    localStorage.setItem(tokenLocalStorageKey, token)
+    tokenSubject.next(token)
+}
+
+async function logout() {
+    localStorage.removeItem(tokenLocalStorageKey)
+    tokenSubject.next(null!);
+}
+
+export const AuthHeader = () => {
+    return { Authorization: `Bearer ${tokenSubject.value}` }
+}

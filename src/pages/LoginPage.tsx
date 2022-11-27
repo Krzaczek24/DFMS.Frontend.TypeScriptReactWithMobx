@@ -1,9 +1,9 @@
 import './../styles/greeting.scss'
 import { useTranslation } from 'react-i18next'
 import { Button, Col, Container, Form, InputGroup, Row } from 'react-bootstrap'
-import { Link, Navigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { FaKey, FaUser } from 'react-icons/fa'
-import AuthenticationService from '../services/FakeAuthenticationService';
+import AuthenticationService from '../services/AuthenticationService';
 
 const LoginPage = () => {
     const { t } = useTranslation()
@@ -50,7 +50,7 @@ const LoginPage = () => {
                 </Row>
                 <Row className='greeting-buttons justify-content-md-center pt-3' xs='auto'>
                     <Col>
-                        <Button variant='primary' size='lg' onClick={AuthenticationService.login}>
+                        <Button variant='primary' size='lg'>
                             {t('login.form.sign-in')}
                         </Button>
                     </Col>
