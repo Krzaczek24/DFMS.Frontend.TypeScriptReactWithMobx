@@ -6,11 +6,17 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  //background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  color: #fff;
+
   background: linear-gradient(-45deg, #384c5c, #402953, #174858, #1d3355);
   background-size: 200% 200%;
   animation: gradient 30s linear infinite;
   height: 100vh;
+}
+
+.form-link {
+  font-weight: bold;
+  text-decoration: none;
 }
 
 @keyframes gradient {

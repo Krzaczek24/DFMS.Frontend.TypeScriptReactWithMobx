@@ -13,7 +13,8 @@
             "username": "Username",
             "password": "Password",
             "sign-in": "Sign in",
-            "registration": "Registration"
+            "account-question": "Don't have an account?",
+            "registration": "Register here"
         }
     },
     "registration": {
@@ -22,8 +23,12 @@
             "username": "Username",
             "password": "Password",
             "repeat-password": "Repeat password",
-            "register": "Sign in",
-            "login": "Login"
+            "email": "E-mail address",
+            "firstname": "First name",
+            "lastname": "Last name",
+            "register": "Sign up",
+            "account-question": "Have already an account?",
+            "login": "Login here"
         }
     }
 }

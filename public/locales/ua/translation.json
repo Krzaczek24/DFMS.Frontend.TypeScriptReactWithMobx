@@ -10,20 +10,25 @@
     "login": {
         "subtitle": "Увійти в систему",
         "form": {
-            "username": "Ім'я користувача",
+            "username": "Назва користувача",
             "password": "Пароль",
             "sign-in": "Логін",
-            "registration": "Реєстрація"
+            "account-question": "Немає облікового запису?",
+            "registration": "Зареєструватися тут"
         }
     },
     "registration": {
         "subtitle": "Реєстрація нового користувача в системі",
         "form": {
-            "username": "Ім'я користувача",
+            "username": "Назва користувача",
             "password": "Пароль",
             "repeat-password": "Повторіть пароль",
+            "email": "Електронна пошта",
+            "firstname": "Ім'я",
+            "lastname": "Прізвище",
             "register": "Зареєструватися",
-            "login": "Увійти"
+            "account-question": "Вже є аккаунт?",
+            "login": "Увійдіть тут"
         }
     }
 }

@@ -13,7 +13,8 @@
             "username": "Nazwa użytkownika",
             "password": "Hasło",
             "sign-in": "Zaloguj",
-            "registration": "Rejestracja"
+            "account-question": "Nie masz konta?",
+            "registration": "Zarejestruj się tutaj"
         }
     },
     "registration": {
@@ -22,8 +23,12 @@
             "username": "Nazwa użytkownika",
             "password": "Hasło",
             "repeat-password": "Powtórz hasło",
+            "email": "Adres e-mail",
+            "firstname": "Imię",
+            "lastname": "Nazwisko",
             "register": "Zarejestruj",
-            "login": "Logowanie"
+            "account-question": "Masz już konto?",
+            "login": "Zaloguj się tutaj"
         }
     }
 }

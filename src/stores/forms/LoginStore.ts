@@ -1,10 +1,9 @@
 import IStore from '../IStore'
-import RootStore from './..'
+import RootStore from '..'
 import AuthenticationService from '../../services/AuthenticationService'
 import { makeAutoObservable } from 'mobx'
-import { useNavigate } from 'react-router-dom'
 
-
+export type LoginResult = 'SUCCESS' | 'ERROR' | 'FAILURE'
 
 class LoginStore implements IStore {
     rootStore: RootStore
@@ -24,13 +23,13 @@ class LoginStore implements IStore {
     public get password() { return this._password }
     public set password(value: string) { this._password = value }
 
-    submit = async () => {
+    submit = async(): Promise<LoginResult> => {
         try {
             await AuthenticationService.login(this._username, this._password)
-            return true
+            return AuthenticationService.isLoggedIn() ? 'SUCCESS' : 'FAILURE'
+            
         } catch (exception) {
-            console.error("Sign in thrown exception", exception)
-            return false
+            return 'ERROR'
         }
     }
 }

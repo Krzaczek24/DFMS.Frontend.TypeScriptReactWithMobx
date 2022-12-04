@@ -56,14 +56,12 @@ class TokenData extends User {
 async function register(username: string, password: string, firstName: string, lastName: string) {
     let input = new RegisterInput({ username, passwordHash: sha512.base64(password), firstName, lastName })
     await api.register(input)
-    //await login(username, password)
 }
 
 async function login(username: string, password: string) {
     let input = new LogonInput({ username, passwordHash: sha512.base64(password) })
     let token = await api.authenticate(input)
 
-    console.log(token)
     localStorage.setItem(tokenLocalStorageKey, token)
     tokenSubject.next(token)
 }

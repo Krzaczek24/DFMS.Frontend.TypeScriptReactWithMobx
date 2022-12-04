@@ -25,17 +25,17 @@ const GreetingPage = () => {
                         </span>
                     </Col>
                 </Row>
-                <Row className='greeting-buttons justify-content-md-center mt-5' xs='auto'>
-                    <Col>
+                <Row className='greeting-buttons justify-content-md-center mt-5'>
+                    <Col md={5}>
                         <Link to='/login'>
                             <Button variant='primary' size='lg'>
                                 {t('greeting.login')}
                             </Button>
                         </Link>
                     </Col>
-                    <Col xs={1}/>
-                    <Col>
-                        <Link to='/register'>
+                    <Col md={1}/>
+                    <Col md={5}>
+                        <Link to='/registration'>
                             <Button variant='secondary' size='lg'>
                                 {t('greeting.registration')}
                             </Button>

@@ -13,10 +13,20 @@ const LoginPage = () => {
     const s = (translation: string) => String(t(translation))
 
     const submit = async () => {
-        if (await loginStore.submit()) {
-            navigate('/')
+        const loginResult = await loginStore.submit()
+        switch (loginResult)
+        {
+            case 'SUCCESS':
+                navigate('/')
+                break;
+            case 'FAILURE':
+                break;
+            default:
+                break;
         }
     }
+
+    const width = 7
 
     return (
         <div className='greeting-container'>
@@ -37,8 +47,8 @@ const LoginPage = () => {
                         </span>
                     </Col>
                 </Row>
-                <Row className='justify-content-md-center pt-3' xs='auto'>
-                    <Col xs={7}>
+                <Row className='justify-content-md-center pt-3'>
+                    <Col md={width}>
                         <InputGroup size='lg'>
                             <InputGroup.Text id='username'>
                                 <FaUser />
@@ -57,8 +67,8 @@ const LoginPage = () => {
                         </InputGroup>
                     </Col>
                 </Row>
-                <Row className='justify-content-md-center pt-3' xs='auto'>
-                    <Col xs={7}>
+                <Row className='justify-content-md-center pt-3'>
+                    <Col md={width}>
                         <InputGroup size='lg'>
                             <InputGroup.Text id='password'>
                                 <FaKey />
@@ -78,18 +88,19 @@ const LoginPage = () => {
                         </InputGroup>
                     </Col>
                 </Row>
-                <Row className='greeting-buttons justify-content-md-center pt-3' xs='auto'>
-                    <Col>
+                <Row className='justify-content-md-center pt-3'>
+                    <Col className='d-grid gap-2' md={width}>
                         <Button variant='primary' size='lg' onClick={submit}>
                             {t('login.form.sign-in')}
                         </Button>
                     </Col>
-                    <Col xs={1}/>
-                    <Col>
-                        <Link to='/register'>
-                            <Button variant='secondary' size='lg'>
-                                {t('login.form.registration')}
-                            </Button>
+                </Row>
+                <Row className='justify-content-md-center pt-3'>
+                    <Col md={width-1}>
+                        <hr />
+                        {t('login.form.account-question') + ' '}
+                        <Link to='/registration' className='form-link'>
+                            {t('login.form.registration')}
                         </Link>
                     </Col>
                 </Row>
