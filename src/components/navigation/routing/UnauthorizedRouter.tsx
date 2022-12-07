@@ -1,8 +1,8 @@
 import { observer } from 'mobx-react-lite'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import GreetingPage from '../../pages/GreetingPage'
-import LoginPage from '../../pages/LoginPage'
-import RegisterPage from '../../pages/RegisterPage'
+import GreetingPage from '../../../pages/guest/GreetingPage'
+import LoginPage from '../../../pages/guest/LoginPage'
+import RegisterPage from '../../../pages/guest/RegisterPage'
 
 const UnauthorizedRouter = observer(() => (
     <>

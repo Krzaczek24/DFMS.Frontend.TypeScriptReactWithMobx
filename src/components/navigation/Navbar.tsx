@@ -1,7 +1,7 @@
-import './../../styles/navbar.scss'
+import './navbar.scss'
 //import { Link, useMatch, useResolvedPath } from 'react-router-dom'
 import React from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { FaPowerOff, FaUser, FaUserFriends } from 'react-icons/fa'
 import AuthenticationService from '../../services/AuthenticationService';
 import { IconType } from 'react-icons/lib';

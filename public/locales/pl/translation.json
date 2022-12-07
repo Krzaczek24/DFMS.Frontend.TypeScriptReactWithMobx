@@ -30,5 +30,8 @@
             "account-question": "Masz już konto?",
             "login": "Zaloguj się tutaj"
         }
+    },
+    "validation": {
+        "required": "To pole jest obowiązkowe"
     }
 }

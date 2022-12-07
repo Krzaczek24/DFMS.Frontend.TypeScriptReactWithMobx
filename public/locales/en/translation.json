@@ -30,5 +30,12 @@
             "account-question": "Have already an account?",
             "login": "Login here"
         }
+    },
+    "validation": {
+        "required": "This field is required",
+        "min-length": "Enter at least {{n}} characters",
+        "max-length": "Enter at most {{n}} characters",
+        "regex": "Invalid string",
+        "email": "Invalid e-mail address"
     }
 }

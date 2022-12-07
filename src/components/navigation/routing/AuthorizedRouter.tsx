@@ -1,9 +1,9 @@
 import { observer } from 'mobx-react-lite'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import Navbar from './Navbar'
+import Navbar from '../Navbar'
 import ProtectedRoute from './ProtectedRoute'
-import HomePage from '../../pages/HomePage'
-import LoginPage from '../../pages/LoginPage'
+import HomePage from '../../../pages/user/HomePage'
+import LoginPage from '../../../pages/guest/LoginPage'
 
 const AuthorizedRouter = observer(() => (
     <>

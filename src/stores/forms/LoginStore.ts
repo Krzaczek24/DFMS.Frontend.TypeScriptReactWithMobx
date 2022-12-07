@@ -2,33 +2,31 @@ import IStore from '../IStore'
 import RootStore from '..'
 import AuthenticationService from '../../services/AuthenticationService'
 import { makeAutoObservable } from 'mobx'
+import FormField from './FormField'
+import Form from './Form'
 
 export type LoginResult = 'SUCCESS' | 'ERROR' | 'FAILURE'
 
 class LoginStore implements IStore {
     rootStore: RootStore
 
+    form = new Form({
+        username: new FormField([{ type: 'Required' }]),
+        password: new FormField([{ type: 'Required' }])
+    })
+
     constructor(rootStore: RootStore) {
         this.rootStore = rootStore
         makeAutoObservable(this)
     }
 
-    //accessor username: string = ''
-    private _username: string = ''
-    public get username() { return this._username }
-    public set username(value: string) { this._username = value }
-
-    //accessor password: string = ''
-    private _password: string = ''
-    public get password() { return this._password }
-    public set password(value: string) { this._password = value }
-
     submit = async(): Promise<LoginResult> => {
         try {
-            await AuthenticationService.login(this._username, this._password)
+            const username = this.form.fields['username'].value
+            const password = this.form.fields['password'].value
+            await AuthenticationService.login(username, password)
             return AuthenticationService.isLoggedIn() ? 'SUCCESS' : 'FAILURE'
-            
-        } catch (exception) {
+        } catch {
             return 'ERROR'
         }
     }

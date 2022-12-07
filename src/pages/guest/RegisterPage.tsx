@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { Button, Col, Container, InputGroup, Form, Row } from 'react-bootstrap'
 import { FaAt, FaKey, FaLock, FaPen, FaUser } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
-import { useStores } from '../stores'
+import { useStores } from '../../stores'
 import { Observer } from 'mobx-react'
 
 const RegisterPage = () => {
