@@ -1,10 +1,10 @@
-import './guestPagesStyle.scss'
+import './../styles/greeting.scss'
 import { useTranslation } from 'react-i18next'
-import { Button, Col, Container, Row } from 'react-bootstrap'
+import { Button, Col, Container, Form, InputGroup, Row } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom'
 import { FaKey, FaUser } from 'react-icons/fa'
-import { useStores } from '../../stores'
-import ValidatableFieldControl from '../../components/form/ValidatableFormField'
+import { useStores } from '../stores'
+import { Observer } from 'mobx-react'
 
 const LoginPage = () => {
     const navigate = useNavigate()
@@ -31,7 +31,7 @@ const LoginPage = () => {
     return (
         <div className='greeting-container'>
             <Container className='greeting-grid'>
-                <Row > {/* className='greeting-logo' */}
+                <Row className='greeting-logo'>
                     <Col>
                         <Link to='/'>
                             <span className='logo'>
@@ -49,29 +49,43 @@ const LoginPage = () => {
                 </Row>
                 <Row className='justify-content-md-center pt-3'>
                     <Col md={width}>
-                        <ValidatableFieldControl
-                            placeholder={s('login.form.username')}
-                            aria-describedby='username'
-                            autoComplete='username'
-                            field={loginStore.form.fields['username']}
-                            icon={<FaUser />}
-                            tooltipPlacement='right'
-                            tooltipText={s('validation.required')}
-                        />
+                        <InputGroup size='lg'>
+                            <InputGroup.Text id='username'>
+                                <FaUser />
+                            </InputGroup.Text>
+                            <Observer>
+                                {() => 
+                                    <Form.Control 
+                                        placeholder={s('login.form.username')} 
+                                        aria-describedby='username' 
+                                        autoComplete='username' 
+                                        value={loginStore.username} 
+                                        onChange={e => loginStore.username = e.target.value}
+                                    />
+                                }
+                            </Observer>
+                        </InputGroup>
                     </Col>
                 </Row>
                 <Row className='justify-content-md-center pt-3'>
                     <Col md={width}>
-                    <ValidatableFieldControl
-                            placeholder={s('login.form.password')}
-                            aria-describedby='password'
-                            autoComplete='current-password'
-                            type='password'
-                            field={loginStore.form.fields['password']}
-                            icon={<FaKey />}
-                            tooltipPlacement='right'
-                            tooltipText={t('validation.required')}
-                        />
+                        <InputGroup size='lg'>
+                            <InputGroup.Text id='password'>
+                                <FaKey />
+                            </InputGroup.Text>
+                            <Observer>
+                                {() => 
+                                    <Form.Control 
+                                        placeholder={s('login.form.password')} 
+                                        aria-describedby='password' 
+                                        autoComplete='current-password' 
+                                        type='password' 
+                                        value={loginStore.password}
+                                        onChange={e => loginStore.password = e.target.value}
+                                    />
+                                }
+                            </Observer>
+                        </InputGroup>
                     </Col>
                 </Row>
                 <Row className='justify-content-md-center pt-3'>

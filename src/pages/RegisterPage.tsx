@@ -4,6 +4,7 @@ import { FaAt, FaKey, FaLock, FaPen, FaUser } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { useStores } from '../stores'
 import { Observer } from 'mobx-react'
+import { ValidationControl } from '../tools/validator'
 
 const RegisterPage = () => {
     const { registrationStore } = useStores()
@@ -154,6 +155,28 @@ const RegisterPage = () => {
                         </InputGroup>
                     </Col>
                 </Row>
+                {/* <Row className='justify-content-md-center pt-3'>
+                    <Col md={columnWidth}>
+                        TEST
+                    </Col>
+                    <Col md={columnWidth}>
+                        <InputGroup size='lg'>
+                            <InputGroup.Text id='xyz'>
+                                <FaPen />
+                            </InputGroup.Text>
+                            <Observer>
+                                {() => 
+                                    <ValidationControl
+                                        placeholder={s('registration.form.lastname')}
+                                        aria-describedby='xyz'
+                                        autoComplete='xyz'
+                                        value={registrationStore.test}
+                                        onChange={e => registrationStore.test = e.target.value}/>
+                                }
+                            </Observer>
+                        </InputGroup>
+                    </Col>
+                </Row> */}
                 <Row className='justify-content-md-center pt-3'>
                     <Col className='d-grid gap-2' md={buttonWidth}>
                         <Button variant='primary' size='lg' onClick={submit}>
