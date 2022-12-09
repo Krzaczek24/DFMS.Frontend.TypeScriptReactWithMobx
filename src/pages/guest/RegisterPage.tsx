@@ -2,9 +2,8 @@ import { useTranslation } from 'react-i18next'
 import { Button, Col, Container, InputGroup, Form, Row } from 'react-bootstrap'
 import { FaAt, FaKey, FaLock, FaPen, FaUser } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
-import { useStores } from '../stores'
+import { useStores } from '../../stores'
 import { Observer } from 'mobx-react'
-import { ValidationControl } from '../tools/validator'
 
 const RegisterPage = () => {
     const { registrationStore } = useStores()
@@ -28,9 +27,9 @@ const RegisterPage = () => {
     const buttonWidth = 7
 
     return (
-        <div className='greeting-container'>
-            <Container className='greeting-grid'>
-                <Row className='greeting-logo'>
+        <div className='guest-container'>
+            <Container className='guest-grid'>
+                <Row className='guest-logo'>
                     <Col>
                         <Link to='/'>
                             <span className='logo'>
@@ -39,9 +38,9 @@ const RegisterPage = () => {
                         </Link>
                     </Col>
                 </Row>
-                <Row className='greeting-text'>
+                <Row>
                     <Col>
-                        <span>
+                        <span className='guest-subtitle'>
                             {t('registration.subtitle')}
                         </span>
                     </Col>
@@ -155,28 +154,6 @@ const RegisterPage = () => {
                         </InputGroup>
                     </Col>
                 </Row>
-                {/* <Row className='justify-content-md-center pt-3'>
-                    <Col md={columnWidth}>
-                        TEST
-                    </Col>
-                    <Col md={columnWidth}>
-                        <InputGroup size='lg'>
-                            <InputGroup.Text id='xyz'>
-                                <FaPen />
-                            </InputGroup.Text>
-                            <Observer>
-                                {() => 
-                                    <ValidationControl
-                                        placeholder={s('registration.form.lastname')}
-                                        aria-describedby='xyz'
-                                        autoComplete='xyz'
-                                        value={registrationStore.test}
-                                        onChange={e => registrationStore.test = e.target.value}/>
-                                }
-                            </Observer>
-                        </InputGroup>
-                    </Col>
-                </Row> */}
                 <Row className='justify-content-md-center pt-3'>
                     <Col className='d-grid gap-2' md={buttonWidth}>
                         <Button variant='primary' size='lg' onClick={submit}>

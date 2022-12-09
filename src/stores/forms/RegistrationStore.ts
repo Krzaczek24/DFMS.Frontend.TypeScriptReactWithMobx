@@ -1,11 +1,11 @@
-import IStore from '../IStore'
+import StoreInterface from '../StoreInterface'
 import RootStore from '..'
 import { makeAutoObservable } from 'mobx'
 import AuthenticationService from '../../services/AuthenticationService'
 
 export type RegisterResult = 'SUCCESS' | 'ERROR' | 'FAILURE'
 
-class RegistrationStore implements IStore {
+class RegistrationStore implements StoreInterface {
     rootStore: RootStore
 
     constructor(rootStore: RootStore) {

@@ -1,8 +1,10 @@
 {
     "common": {
-        "language": "Язик"
+        "language": "Язик",
+        "please-wait": "Будь ласка, зачекайте",
+        "processing": "Обробка"
     },
-    "greeting": {
+    "guest-screen": {
         "subtitle": "Ласкаво просимо до Dynamic Forms Management System",
         "login": "Увійти",
         "registration": "Реєстрація"
@@ -15,6 +17,10 @@
             "sign-in": "Логін",
             "account-question": "Немає облікового запису?",
             "registration": "Зареєструватися тут"
+        },
+        "messages": {
+            "incorrect-credentials": "Надано неправильні облікові дані",
+            "error": "Під час обробки облікових даних сталася помилка"
         }
     },
     "registration": {
@@ -30,5 +36,12 @@
             "account-question": "Вже є аккаунт?",
             "login": "Увійдіть тут"
         }
+    },
+    "validation": {
+        "required": "Це поле є обов'язковим для заповнення",
+        "min-length": "Введіть принаймні {{n}} символів",
+        "max-length": "Введіть до 10 символів",
+        "regex": "Неправильне значення",
+        "email": "Неправильна адреса електронної пошти"
     }
 }

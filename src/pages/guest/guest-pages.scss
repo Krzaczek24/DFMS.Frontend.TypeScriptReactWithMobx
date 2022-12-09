@@ -1,8 +1,8 @@
-.greeting-container {
+.guest-container {
     height: 100%;
     text-align: center;
 
-    .greeting-grid {
+    .guest-grid {
         position: absolute;
         top: 45%;
         left: 50%;
@@ -10,7 +10,7 @@
         -ms-transform: translate(-50%, -50%);
         transform: translate(-50%, -50%);
 
-        .greeting-logo {
+        .guest-logo {
             text-align: center;
             overflow: hidden;
             height: 234px;
@@ -28,14 +28,10 @@
             }
         }
     
-        .greeting-text {
+        .guest-subtitle {
             font-size: 1.5em;
             text-align: center;
             color: white;
-        }
-
-        .greeting-buttons {
-            color: inherit;
         }
     }
 }

@@ -1,8 +1,10 @@
 {
     "common": {
-        "language": "Language"
+        "language": "Language",
+        "please-wait": "Please wait",
+        "processing": "Processing"
     },
-    "greeting": {
+    "guest-screen": {
         "subtitle": "Welcome in Dynamic Forms Management System",
         "login": "Login",
         "registration": "Registration"
@@ -15,6 +17,10 @@
             "sign-in": "Sign in",
             "account-question": "Don't have an account?",
             "registration": "Register here"
+        },
+        "messages": {
+            "incorrect-credentials": "Incorrect credentials provided",
+            "error": "An error occurred while processing credentials"
         }
     },
     "registration": {
@@ -35,7 +41,7 @@
         "required": "This field is required",
         "min-length": "Enter at least {{n}} characters",
         "max-length": "Enter at most {{n}} characters",
-        "regex": "Invalid string",
+        "regex": "Invalid value",
         "email": "Invalid e-mail address"
     }
 }

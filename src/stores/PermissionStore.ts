@@ -1,8 +1,8 @@
-import IStore from './IStore'
+import StoreInterface from './StoreInterface'
 import RootStore from '.'
 import { makeAutoObservable } from 'mobx'
 
-class PermissionStore implements IStore {
+class PermissionStore implements StoreInterface {
     rootStore: RootStore
 
     constructor(rootStore: RootStore) {

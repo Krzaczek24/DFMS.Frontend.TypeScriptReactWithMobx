@@ -1,8 +1,10 @@
 {
     "common": {
-        "language": "Język"
+        "language": "Język",
+        "please-wait": "Proszę czekać",
+        "processing": "Przetwarzanie"
     },
-    "greeting": {
+    "guest-screen": {
         "subtitle": "Witaj w Dynamic Forms Management System",
         "login": "Logowanie",
         "registration": "Rejestracja"
@@ -15,6 +17,10 @@
             "sign-in": "Zaloguj",
             "account-question": "Nie masz konta?",
             "registration": "Zarejestruj się tutaj"
+        },
+        "messages": {
+            "incorrect-credentials": "Podano nieprawidłowe dane uwierzytelniające",
+            "error": "Wystąpił błąd podczas przetwarzania poświadczeń"
         }
     },
     "registration": {
@@ -32,6 +38,10 @@
         }
     },
     "validation": {
-        "required": "To pole jest obowiązkowe"
+        "required": "To pole jest obowiązkowe",
+        "min-length": "Wprowadź co najmniej {{n}} znaków",
+        "max-length": "Wprowadź co najwyżej {{n}} znaków",
+        "regex": "Nieporpawna wartość",
+        "email": "Niepoprawny adres e-mail"
     }
 }

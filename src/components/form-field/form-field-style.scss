@@ -1,0 +1,15 @@
+div[role=tooltip] {
+    border-radius: 0.5rem;
+}
+
+input.text-center {
+    text-align: center;
+    
+    &.is-invalid {
+        text-indent: -1.8rem;
+    }
+
+    &:not(.is-invalid) {
+        text-indent: -3.42rem;
+    }
+}

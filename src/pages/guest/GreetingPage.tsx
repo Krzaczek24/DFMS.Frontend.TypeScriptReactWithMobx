@@ -1,4 +1,4 @@
-import './guestPagesStyle.scss'
+import './guest-pages.scss'
 import { useTranslation } from 'react-i18next'
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -7,9 +7,9 @@ const GreetingPage = () => {
     const { t } = useTranslation()
 
     return (
-        <div className='greeting-container'>
-            <Container className='greeting-grid'>
-                <Row className='greeting-logo'>
+        <div className='guest-container'>
+            <Container className='guest-grid'>
+                <Row className='guest-logo'>
                     <Col>
                         <Link to='/'>
                             <span className='logo'>
@@ -18,26 +18,25 @@ const GreetingPage = () => {
                         </Link>
                     </Col>
                 </Row>
-                <Row className='greeting-text'>
+                <Row>
                     <Col>
-                        <span>
-                            {t('greeting.subtitle')}
+                        <span className='guest-subtitle'>
+                            {t('guest-screen.subtitle')}
                         </span>
                     </Col>
                 </Row>
-                <Row className='greeting-buttons justify-content-md-center mt-5'>
-                    <Col md={5}>
+                <Row className='justify-content-md-center pt-5'>
+                    <Col>
                         <Link to='/login'>
                             <Button variant='primary' size='lg'>
-                                {t('greeting.login')}
+                                {t('guest-screen.login')}
                             </Button>
                         </Link>
                     </Col>
-                    <Col md={1}/>
-                    <Col md={5}>
+                    <Col>
                         <Link to='/registration'>
                             <Button variant='secondary' size='lg'>
-                                {t('greeting.registration')}
+                                {t('guest-screen.registration')}
                             </Button>
                         </Link>
                     </Col>
