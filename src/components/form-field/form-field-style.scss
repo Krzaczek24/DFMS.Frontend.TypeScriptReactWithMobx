@@ -1,5 +1,7 @@
 div[role=tooltip] {
     border-radius: 0.5rem;
+    z-index: 10;
+    opacity: 0.95;
 }
 
 input.text-center {

@@ -20,9 +20,7 @@ const LoginPage = () => {
             return
         }
 
-        await loginStore.submit()
-
-        if (loginStore.result === 'SUCCESS') {
+        if (await loginStore.submit() === 'SUCCESS') {
             navigate('/')
         }
     }
@@ -59,6 +57,7 @@ const LoginPage = () => {
                             tooltip-variant='error'
                             auto-complete='username'
                             center-text
+                            show-tooltip
                         />
                     </Col>
                 </Row>
@@ -74,6 +73,7 @@ const LoginPage = () => {
                             tooltip-variant='error'
                             auto-complete='current-password'
                             center-text
+                            show-tooltip
                         />
                     </Col>
                 </Row>
@@ -83,7 +83,7 @@ const LoginPage = () => {
                             {() => (
                                 <Button variant='primary' size='lg' onClick={submit} disabled={loginStore.submitting}>
                                     {loginStore.submitting ?
-                                        <span>{t('common.please-wait')} <Spinner animation="border" variant="light" size="sm" /></span>:
+                                        <span>{t('common.please-wait')} <Spinner animation="border" variant="light" size="sm" /></span> :
                                         <span>{t('login.form.sign-in')}</span>
                                     }
                                 </Button>

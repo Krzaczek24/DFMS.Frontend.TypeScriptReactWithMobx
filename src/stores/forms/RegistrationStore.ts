@@ -1,55 +1,51 @@
 import StoreInterface from '../StoreInterface'
 import RootStore from '..'
-import { makeAutoObservable } from 'mobx'
 import AuthenticationService from '../../services/AuthenticationService'
+import { makeAutoObservable } from 'mobx'
+import { Form, FormField } from '../../models/forms'
 
-export type RegisterResult = 'SUCCESS' | 'ERROR' | 'FAILURE'
+export type RegisterResult = 'SUCCESS' | 'ERROR' | 'FAILURE' | undefined
 
 class RegistrationStore implements StoreInterface {
     rootStore: RootStore
+
+    private _submitting: boolean = false
+    get submitting() { return this._submitting }
+    private set submitting(value) { this._submitting = value }
+
+    private _result: RegisterResult
+    get result(): RegisterResult { return this._result }
+    private set result(value: RegisterResult) { this._result = value }
+
+    form = new Form({
+        username: new FormField([{ type: 'required' }, { type: 'min-length', restriction: 3 }]),
+        password: new FormField([{ type: 'required' }, { type: 'password' }]),
+        repeatPassword: new FormField([{ type: 'the-same-as', restriction: 'password' }]),
+        firstName: new FormField([{ type: 'min-length', restriction: 3 }, { type: 'name' }]),
+        lastName: new FormField([{ type: 'min-length', restriction: 3 }, { type: 'name' }]),
+        email: new FormField([{ type: 'e-mail' }])
+    }, () => { this.result = undefined })
 
     constructor(rootStore: RootStore) {
         this.rootStore = rootStore
         makeAutoObservable(this)
     }
 
-    //accessor username: string = ''
-    private _username: string = ''
-    public get username() { return this._username }
-    public set username(value: string) { this._username = value }
-
-    //accessor password: string = ''
-    private _password: string = ''
-    public get password() { return this._password }
-    public set password(value: string) { this._password = value }
-
-    //accessor firstName: string = ''
-    private _firstName: string = ''
-    public get firstName() { return this._firstName }
-    public set firstName(value: string) { this._firstName = value }
-
-    //accessor lastName: string = ''
-    private _lastName: string = ''
-    public get lastName() { return this._lastName }
-    public set lastName(value: string) { this._lastName = value }
-
-    //accessor email: string = ''
-    private _email: string = ''
-    public get email() { return this._email }
-    public set email(value: string) { this._email = value }
-
-    //accessor test: string = ''
-    private _test: string = ''
-    public get test() { return this._test }
-    public set test(value: string) { this._test = value }
-
     submit = async(): Promise<RegisterResult> => {
+        this._submitting = true
+
+        const username = this.form.fields.username.value
+        const password = this.form.fields.password.value
+        const email = this.form.fields.email.value
+        const firstName = this.form.fields.firstName.value
+        const lastName = this.form.fields.lastName.value
         try {
-            await AuthenticationService.register(this._username, this._password, this._firstName, this._lastName)
+            await AuthenticationService.register(username, password, email, firstName, lastName)
             return AuthenticationService.isLoggedIn() ? 'SUCCESS' : 'FAILURE'
-            
         } catch (exception) {
             return 'ERROR'
+        } finally {
+            this.submitting = false
         }
     }
 }

@@ -39,9 +39,13 @@
     },
     "validation": {
         "required": "To pole jest obowiązkowe",
-        "min-length": "Wprowadź co najmniej {{n}} znaków",
-        "max-length": "Wprowadź co najwyżej {{n}} znaków",
-        "regex": "Nieporpawna wartość",
-        "email": "Niepoprawny adres e-mail"
+        "password": "Hasło musi zawierać co najmniej 1 dużą literę, 1 małą, 1 cyfrę oraz 1 znak specjalny",
+        "min-length": "Minimalna liczba znaków to: {{restriction}}",
+        "max-length": "Maksymalna liczba znaków to: {{restriction}}",
+        "regex": "Niepoprawna wartość",
+        "e-mail": "Niepoprawny adres e-mail",
+        "name": "Słowo należy zacząć wielką literą a skończyć małymi",
+        "the-same-as": "Wartość musi być taka sama",
+        "the-same-passwords": "Hasła nie są takie same"
     }
 }

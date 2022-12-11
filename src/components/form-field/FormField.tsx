@@ -19,6 +19,7 @@ type FormFieldProps = {
     'tooltip-place'?: 'top' | 'right' | 'bottom' | 'left'
     size?: 'sm' | 'lg'
     'custom-validation-tooltips'?: CustomValidationTooltips
+    'show-tooltip'?: boolean
     onChange?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
 }
 
@@ -27,47 +28,52 @@ const FormField = (props: FormFieldProps) => {
     const guid = props.id ?? 'uuid-' + crypto.randomUUID();
     const getTooltip = () => {
         const validation = props.field.failedValidation
-        const customValidations = props['custom-validation-tooltips']
-        return validation && customValidations && customValidations[validation]
-            ? customValidations[validation]
-            : t(`validation.${props.field.failedValidation}`)
+        if (validation) {
+            const customValidations = props['custom-validation-tooltips']
+            if (validation && customValidations && customValidations[validation]) {
+                return customValidations[validation]
+            }
+            const restriction = props.field.validations.find(x => x.type === validation)?.restriction
+            return t(`validation.${props.field.failedValidation}`, { restriction })
+        }
     }
     return (
-        <>
-            <InputGroup size={props.size}>
-                {props.icon &&
-                    <InputGroup.Text>
-                        {props.icon}
-                    </InputGroup.Text>
-                }
-                <Observer>
-                    {() => (
-                        <Form.Control 
-                            id={guid}
+        <Observer>
+            {() => (
+                <>
+                    <InputGroup id={guid} data-tooltip-content={getTooltip()} size={props.size}>
+                        {props.icon && 
+                            <InputGroup.Text>
+                                {props.icon}
+                            </InputGroup.Text>
+                        }
+                        <Form.Control
                             placeholder={props.placeholder} 
                             aria-describedby={props['aria-describedby']}
                             autoComplete={props['auto-complete']}
                             type={props.type}
                             value={props.field.value}
                             isInvalid={props.field.isInvalid}
-                            data-tooltip-content={getTooltip()}
-                            data-tooltip-variant={props['tooltip-variant']}
-                            data-tooltip-place={props['tooltip-place']}
                             className={props['center-text'] ? 'text-center' : ''}
                             onChange={e => {
                                 props.field.value = e.target.value
-                                if (props.onChange){
+                                if (props.onChange) {
                                     props.onChange(e)
                                 }
                             }}
                         />
-                    )}
-                </Observer>
-            </InputGroup>
-            <Observer>
-                {() => (<Tooltip anchorId={guid} isOpen={props.field.isInvalid}/>)}
-            </Observer>
-        </>
+                    </InputGroup>
+                    {props['show-tooltip'] && props.field.isInvalid &&
+                        <Tooltip
+                            anchorId={guid}
+                            variant={props['tooltip-variant']}
+                            place={props['tooltip-place']}
+                            offset={5}
+                        />
+                    }
+                </>
+            )}
+        </Observer>
     )
 }
 

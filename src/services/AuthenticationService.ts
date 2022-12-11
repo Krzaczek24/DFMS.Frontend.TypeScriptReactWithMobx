@@ -53,7 +53,7 @@ class TokenData extends User {
     }
 }
 
-async function register(username: string, password: string, firstName: string, lastName: string) {
+async function register(username: string, password: string, email: string, firstName: string, lastName: string) {
     let input = new RegisterInput({ username, passwordHash: sha512.base64(password), firstName, lastName })
     await api.register(input)
 }

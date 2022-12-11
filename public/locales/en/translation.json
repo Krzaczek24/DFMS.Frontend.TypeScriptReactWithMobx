@@ -39,9 +39,13 @@
     },
     "validation": {
         "required": "This field is required",
-        "min-length": "Enter at least {{n}} characters",
-        "max-length": "Enter at most {{n}} characters",
+        "password": "The password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character",
+        "min-length": "Enter at least {{restriction}} characters",
+        "max-length": "Enter at most {{restriction}} characters",
         "regex": "Invalid value",
-        "email": "Invalid e-mail address"
+        "e-mail": "Invalid e-mail address",
+        "name": "Words should start with a capital letter and end with a lowercase letter",
+        "the-same-as": "Value must be the same",
+        "the-same-passwords": "The passwords are not the same"
     }
 }

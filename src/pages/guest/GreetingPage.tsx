@@ -28,14 +28,14 @@ const GreetingPage = () => {
                 <Row className='justify-content-md-center pt-5'>
                     <Col>
                         <Link to='/login'>
-                            <Button variant='primary' size='lg'>
+                            <Button variant='primary' size='lg' className='w-100'>
                                 {t('guest-screen.login')}
                             </Button>
                         </Link>
                     </Col>
                     <Col>
                         <Link to='/registration'>
-                            <Button variant='secondary' size='lg'>
+                            <Button variant='secondary' size='lg' className='w-100'>
                                 {t('guest-screen.registration')}
                             </Button>
                         </Link>

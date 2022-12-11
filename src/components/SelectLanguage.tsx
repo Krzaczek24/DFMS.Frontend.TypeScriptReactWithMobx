@@ -21,7 +21,7 @@ const renderOption = (value: string, label: string) => {
 }
 
 interface SelectLanuageProps {
-    value: string
+    value?: string
     onChange?(value: string): void
 }
 

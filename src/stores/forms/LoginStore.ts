@@ -13,6 +13,10 @@ class LoginStore implements StoreInterface {
     get submitting() { return this._submitting }
     private set submitting(value) { this._submitting = value }
 
+    private _result: LoginResult
+    get result(): LoginResult { return this._result }
+    private set result(value: LoginResult) { this._result = value }
+
     form = new Form({
         username: new FormField([{ type: 'required' }]),
         password: new FormField([{ type: 'required' }])
@@ -22,10 +26,6 @@ class LoginStore implements StoreInterface {
         this.rootStore = rootStore
         makeAutoObservable(this)
     }
-
-    private _result: LoginResult
-    get result(): LoginResult { return this._result }
-    private set result(value: LoginResult) { this._result = value }
 
     submit = async(): Promise<LoginResult> => {
         this._submitting = true

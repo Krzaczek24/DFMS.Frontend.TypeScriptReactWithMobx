@@ -1,25 +1,24 @@
 import { useTranslation } from 'react-i18next'
-import { Button, Col, Container, InputGroup, Form, Row } from 'react-bootstrap'
+import { Button, Col, Container, Row, Spinner } from 'react-bootstrap'
 import { FaAt, FaKey, FaLock, FaPen, FaUser } from 'react-icons/fa'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useStores } from '../../stores'
-import { Observer } from 'mobx-react'
+import FormField from '../../components/form-field/FormField'
 
 const RegisterPage = () => {
+    const navigate = useNavigate()
     const { registrationStore } = useStores()
     const { t } = useTranslation()
     const s = (translation: string) => String(t(translation))
 
     const submit = async () => {
-        const registerResult = await registrationStore.submit()
-        switch (registerResult)
-        {
-            case 'SUCCESS':
-                break;
-            case 'FAILURE':
-                break;
-            default:
-                break;
+        if (!registrationStore.form.isValid) {
+            registrationStore.form.revealInvalid()
+            return
+        }
+
+        if (await registrationStore.submit() === 'SUCCESS') {
+            navigate('/')
         }
     }
 
@@ -47,117 +46,94 @@ const RegisterPage = () => {
                 </Row>
                 <Row className='justify-content-md-center pt-3'>
                     <Col md={columnWidth}>
-                        <InputGroup size='lg'>
-                            <InputGroup.Text id='username'>
-                                <FaUser />
-                            </InputGroup.Text>
-                            <Observer>
-                                {() => 
-                                    <Form.Control 
-                                        placeholder={s('registration.form.username')} 
-                                        aria-describedby='username' 
-                                        autoComplete='username'
-                                        value={registrationStore.username}
-                                        onChange={e => registrationStore.username = e.target.value}/>
-                                }
-                            </Observer>
-                        </InputGroup>
+                        <FormField
+                            icon={<FaUser />}
+                            field={registrationStore.form.fields.username}
+                            size='lg'
+                            placeholder={s('registration.form.username')}
+                            tooltip-variant='error'
+                            auto-complete='username'
+                            center-text
+                            show-tooltip
+                        />
                     </Col>
                     <Col md={columnWidth}>
-                        <InputGroup size='lg'>
-                            <InputGroup.Text id='email'>
-                                <FaAt />
-                            </InputGroup.Text>
-                            <Observer>
-                                {() => 
-                                    <Form.Control 
-                                        placeholder={s('registration.form.email')} 
-                                        aria-describedby='email' 
-                                        autoComplete='email' 
-                                        type='email'
-                                        value={registrationStore.email}
-                                        onChange={e => registrationStore.email = e.target.value}/>
-                                }
-                            </Observer>
-                        </InputGroup>
+                        <FormField
+                            icon={<FaAt />}
+                            field={registrationStore.form.fields.email}
+                            size='lg'
+                            placeholder={s('registration.form.email')}
+                            tooltip-variant='error'
+                            auto-complete='email'
+                            center-text
+                            show-tooltip
+                        />
                     </Col>
                 </Row>
                 <Row className='justify-content-md-center pt-3'>
                     <Col md={columnWidth}>
-                        <InputGroup size='lg'>
-                            <InputGroup.Text id='password'>
-                                <FaKey />
-                            </InputGroup.Text>
-                            <Observer>
-                                {() => 
-                                    <Form.Control 
-                                        placeholder={s('registration.form.password')} 
-                                        aria-describedby='password' 
-                                        autoComplete='off' 
-                                        type='password'
-                                        value={registrationStore.password}
-                                        onChange={e => registrationStore.password = e.target.value}/>
-                                }
-                            </Observer>
-                        </InputGroup>
+                        <FormField
+                            icon={<FaKey />}
+                            field={registrationStore.form.fields.password}
+                            size='lg'
+                            placeholder={s('registration.form.password')}
+                            tooltip-variant='error'
+                            auto-complete='off'
+                            type='password'
+                            center-text
+                            show-tooltip
+                        />
                     </Col>
                     <Col md={columnWidth}>
-                        <InputGroup size='lg'>
-                            <InputGroup.Text id='repeat-password'>
-                                <FaLock />
-                            </InputGroup.Text>
-                            <Observer>
-                                {() => 
-                                    <Form.Control 
-                                        placeholder={s('registration.form.repeat-password')} 
-                                        aria-describedby='repeat-password' 
-                                        autoComplete='off' 
-                                        type='password'/>
-                                }
-                            </Observer>
-                        </InputGroup>
+                        <FormField
+                            icon={<FaLock />}
+                            field={registrationStore.form.fields.repeatPassword}
+                            size='lg'
+                            placeholder={s('registration.form.repeat-password')}
+                            tooltip-variant='error'
+                            auto-complete='off'
+                            type='password'
+                            center-text
+                            show-tooltip
+                            custom-validation-tooltips={{
+                                "the-same-as": s('validation.the-same-passwords')
+                            }}
+                        />
                     </Col>
                 </Row>
                 <Row className='justify-content-md-center pt-3'>
                     <Col md={columnWidth}>
-                        <InputGroup size='lg'>
-                            <InputGroup.Text id='first-name'>
-                                <FaPen />
-                            </InputGroup.Text>
-                            <Observer>
-                                {() => 
-                                    <Form.Control 
-                                        placeholder={s('registration.form.firstname')} 
-                                        aria-describedby='first-name' 
-                                        autoComplete='given-name'
-                                        value={registrationStore.firstName}
-                                        onChange={e => registrationStore.firstName = e.target.value}/>
-                                }
-                            </Observer>
-                        </InputGroup>
+                        <FormField
+                            icon={<FaPen />}
+                            field={registrationStore.form.fields.firstName}
+                            size='lg'
+                            placeholder={s('registration.form.firstname')}
+                            tooltip-variant='error'
+                            auto-complete='given-name'
+                            center-text
+                            show-tooltip
+                        />
                     </Col>
                     <Col md={columnWidth}>
-                        <InputGroup size='lg'>
-                            <InputGroup.Text id='last-name'>
-                                <FaPen />
-                            </InputGroup.Text>
-                            <Observer>
-                                {() => 
-                                    <Form.Control 
-                                        placeholder={s('registration.form.lastname')} 
-                                        aria-describedby='last-name' 
-                                        autoComplete='family-name'
-                                        value={registrationStore.lastName}
-                                        onChange={e => registrationStore.lastName = e.target.value}/>
-                                }
-                            </Observer>
-                        </InputGroup>
+                        <FormField
+                            icon={<FaPen />}
+                            field={registrationStore.form.fields.lastName}
+                            size='lg'
+                            placeholder={s('registration.form.lastname')}
+                            tooltip-variant='error'
+                            auto-complete='family-name'
+                            center-text
+                            show-tooltip
+                        />
                     </Col>
                 </Row>
                 <Row className='justify-content-md-center pt-3'>
-                    <Col className='d-grid gap-2' md={buttonWidth}>
-                        <Button variant='primary' size='lg' onClick={submit}>
-                            {t('registration.form.register')}
+                    <Col className='d-grid' md={buttonWidth}>
+                        <Button variant='primary' size='lg' onClick={submit} disabled={registrationStore.submitting}>
+                            {registrationStore.submitting ?
+                                <span>{t('common.please-wait')} <Spinner animation="border" variant="light" size="sm" /></span> :
+                                <span>{t('registration.form.register')}</span>
+                            }
                         </Button>
                     </Col>
                 </Row>

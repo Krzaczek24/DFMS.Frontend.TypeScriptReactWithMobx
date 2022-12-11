@@ -8,7 +8,7 @@ import SelectLanguage from './components/SelectLanguage';
 
 const App = observer(() => (
   <>
-    <SelectLanguage value='en' />
+    <SelectLanguage />
     {AuthenticationService.isLoggedIn()
       ? <AuthorizedRouter /> 
       : <UnauthorizedRouter />}
