@@ -1707,6 +1707,7 @@ export class RegisterInput implements IRegisterInput {
     passwordHash!: string;
     firstName?: string | null;
     lastName?: string | null;
+    email?: string | null;
 
     constructor(data?: IRegisterInput) {
         if (data) {
@@ -1723,6 +1724,7 @@ export class RegisterInput implements IRegisterInput {
             this.passwordHash = _data["passwordHash"] !== undefined ? _data["passwordHash"] : <any>null;
             this.firstName = _data["firstName"] !== undefined ? _data["firstName"] : <any>null;
             this.lastName = _data["lastName"] !== undefined ? _data["lastName"] : <any>null;
+            this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
         }
     }
 
@@ -1739,6 +1741,7 @@ export class RegisterInput implements IRegisterInput {
         data["passwordHash"] = this.passwordHash !== undefined ? this.passwordHash : <any>null;
         data["firstName"] = this.firstName !== undefined ? this.firstName : <any>null;
         data["lastName"] = this.lastName !== undefined ? this.lastName : <any>null;
+        data["email"] = this.email !== undefined ? this.email : <any>null;
         return data;
     }
 }
@@ -1748,6 +1751,7 @@ export interface IRegisterInput {
     passwordHash: string;
     firstName?: string | null;
     lastName?: string | null;
+    email?: string | null;
 }
 
 export class UpdatePermissionGroupInput implements IUpdatePermissionGroupInput {

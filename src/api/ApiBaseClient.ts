@@ -4,8 +4,6 @@ export class ApiBaseClient {
     constructor() { }
     
     protected getBaseUrl = (defaultUrl: string, baseUrl?: string): string => {
-        console.log(defaultUrl)
-        console.log(baseUrl)
         if (baseUrl != null)
             return baseUrl
         else if (defaultUrl.length > 0)
