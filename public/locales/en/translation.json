@@ -35,11 +35,16 @@
             "register": "Sign up",
             "account-question": "Have already an account?",
             "login": "Login here"
+        },
+        "messages": {
+            "success": "Account successfully registered",
+            "username-already-taken": "The specified username is already taken",
+            "failure": "An error occurred while trying to register a user"
         }
     },
     "validation": {
         "required": "This field is required",
-        "password": "The password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character",
+        "password": "Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character and must be at least 8 characters long",
         "min-length": "Enter at least {{restriction}} characters",
         "max-length": "Enter at most {{restriction}} characters",
         "regex": "Invalid value",

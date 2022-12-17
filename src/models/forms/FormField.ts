@@ -17,12 +17,12 @@ export type CustomValidationTooltips = {
     [key in ValidationType]?: string
 }
 
-type validationDefinition = {
+type ValidationDefinition = {
     [key in ValidationType]: (value: string, restriction?: number | string, form?: Form) => boolean
 }
 
 const isEmpty = (value: string) => value == null || value.length === 0
-const validations: validationDefinition = {
+const validations: ValidationDefinition = {
     'required': (value) => value?.length > 0,
     'min-length': (value, restriction) => isEmpty(value) || (typeof restriction === 'number' && value.length >= restriction),
     'max-length': (value, restriction) => isEmpty(value) || (typeof restriction === 'number' && value.length <= restriction),
@@ -33,10 +33,14 @@ const validations: validationDefinition = {
 }
 
 class FormField {
-    constructor(readonly validations: Validation[] = [], showInvalidOnStart = false)
+    constructor(
+        readonly validations: Validation[] = [], 
+        showInvalidOnStart = false, 
+        sendCallback = true)
     {
         this._failedValidation = this.getFailedValidation()
         this._showInvalid = showInvalidOnStart
+        this._sendCallback = sendCallback
         makeAutoObservable(this)
     }
 
@@ -44,9 +48,13 @@ class FormField {
     get failedValidation(): ValidationResult { return this._failedValidation }
 
     private _showInvalid: boolean
-    get isValid(): boolean { return this._failedValidation == null }
-    get isInvalid(): boolean { return this._showInvalid && !this.isValid }
-    revealInvalid = (): void => { this._showInvalid = true }
+    get isValid() { return this._failedValidation == null }
+    get isInvalid() { return this._showInvalid && !this.isValid }
+    revealInvalid = () => { this._showInvalid = true }
+
+    private _sendCallback: boolean
+    get sendCallback() { return this._sendCallback }
+    set sendCallback(value) { this._sendCallback = value }
 
     private _value: string = ''
     set value(value: string) {
@@ -55,14 +63,14 @@ class FormField {
         if (this._failedValidation !== 'required') {
             this._showInvalid = true
         }
-        this.form?.fieldsChanged()
+        if (this.sendCallback) {
+            this.form?.fieldsChanged()
+        }
     }
     get value() { return this._value }    
 
     private form: Form | undefined
-    bindForm = (form: Form): void => {
-        this.form = form
-    }
+    bindForm = (form: Form) => { this.form = form }
     
     private getFailedValidation() {
         for (var validation of this.validations) {
@@ -70,7 +78,17 @@ class FormField {
                 return validation.type
             }
         }
-    }    
+    }
+
+    clear = () => {
+        const sendCallbackTemp = this.sendCallback
+        this.sendCallback = false
+
+        this._showInvalid = false
+        this.value = ''
+
+        this.sendCallback = sendCallbackTemp
+    }
 }
 
 export default FormField

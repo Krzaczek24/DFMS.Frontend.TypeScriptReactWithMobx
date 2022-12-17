@@ -1,4 +1,4 @@
-import { IAuthenticationClient, AuthenticationClient, IUser, LogonInput, RegisterInput } from '../api/ApiClient'
+import { IAuthenticationClient, AuthenticationClient, LogonInput, RegisterInput } from '../api/ApiClient'
 import { BehaviorSubject } from 'rxjs'
 import { sha512 } from 'sha512-crypt-ts';
 import jwt_decode from 'jwt-decode'
@@ -30,7 +30,7 @@ export default AuthenticationService
 
 export type Role = 'ADMIN' | 'MODERATOR' | 'MANAGER' | 'USER' | 'BLOCKED'
 
-export class User implements IUser {
+export class User {
     id!: number
     login!: string | undefined
     role!: Role
@@ -54,8 +54,8 @@ class TokenData extends User {
 }
 
 async function register(username: string, password: string, email: string, firstName: string, lastName: string) {
-    let input = new RegisterInput({ username, passwordHash: sha512.base64(password), firstName, lastName })
-    await api.register(input)
+    let input = new RegisterInput({ username, passwordHash: sha512.base64(password), email, firstName, lastName })
+    return await api.register(input)
 }
 
 async function login(username: string, password: string) {

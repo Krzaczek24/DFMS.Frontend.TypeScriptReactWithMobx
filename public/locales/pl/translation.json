@@ -35,11 +35,16 @@
             "register": "Zarejestruj",
             "account-question": "Masz już konto?",
             "login": "Zaloguj się tutaj"
+        },
+        "messages": {
+            "success": "Pomyślnie zarejestrowano konto",
+            "username-already-taken": "Wskazana nazwa użytkownika jest już zajęta",
+            "failure": "Wystąpił błąd podczas próby zarejestrowania użytkownika"
         }
     },
     "validation": {
         "required": "To pole jest obowiązkowe",
-        "password": "Hasło musi zawierać co najmniej 1 dużą literę, 1 małą, 1 cyfrę oraz 1 znak specjalny",
+        "password": "Hasło musi zawierać co najmniej 1 wielką literę, 1 małą literę, 1 cyfrę i 1 znak specjalny oraz musi mieć co najmniej 8 znaków",
         "min-length": "Minimalna liczba znaków to: {{restriction}}",
         "max-length": "Maksymalna liczba znaków to: {{restriction}}",
         "regex": "Niepoprawna wartość",

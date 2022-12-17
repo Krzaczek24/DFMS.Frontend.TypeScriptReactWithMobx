@@ -1,12 +1,18 @@
 import { useTranslation } from 'react-i18next'
-import { Button, Col, Container, Row, Spinner } from 'react-bootstrap'
+import { Alert, Button, Col, Container, Row, Spinner } from 'react-bootstrap'
 import { FaAt, FaKey, FaLock, FaPen, FaUser } from 'react-icons/fa'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useStores } from '../../stores'
 import FormField from '../../components/form-field/FormField'
+import { RegistrationResult } from '../../api/ApiClient'
+import { Observer } from 'mobx-react'
+
+type ResultAlert = {
+    variant: 'success' | 'warning' | 'danger'
+    message: string
+} | undefined
 
 const RegisterPage = () => {
-    const navigate = useNavigate()
     const { registrationStore } = useStores()
     const { t } = useTranslation()
     const s = (translation: string) => String(t(translation))
@@ -17,8 +23,30 @@ const RegisterPage = () => {
             return
         }
 
-        if (await registrationStore.submit() === 'SUCCESS') {
-            navigate('/')
+        if (await registrationStore.submit() === RegistrationResult.Success) {
+            registrationStore.form.clearAllFields()
+        }
+    }
+
+    const getAlertData = (): ResultAlert => {
+        switch (registrationStore.registerResult) {
+            case RegistrationResult.Success:
+                return { variant: 'success', message: t('registration.messages.success') }
+            case RegistrationResult.UsernameAlreadyTaken:
+                return { variant: 'warning', message: t('registration.messages.username-already-taken') }
+            case RegistrationResult.Failure:
+                return { variant: 'danger', message: t('registration.messages.failure') }
+        }
+    }
+
+    const getAlert = () => {
+        const data = getAlertData()
+        if (data) {
+            return (
+                <Alert className='py-2 mb-0' variant={data.variant}>
+                    {data.message}
+                </Alert>
+            )
         }
     }
 
@@ -129,14 +157,33 @@ const RegisterPage = () => {
                 </Row>
                 <Row className='justify-content-md-center pt-3'>
                     <Col className='d-grid' md={buttonWidth}>
-                        <Button variant='primary' size='lg' onClick={submit} disabled={registrationStore.submitting}>
-                            {registrationStore.submitting ?
-                                <span>{t('common.please-wait')} <Spinner animation="border" variant="light" size="sm" /></span> :
-                                <span>{t('registration.form.register')}</span>
-                            }
-                        </Button>
+                        <Observer>
+                            {() => (
+                                <Button variant='primary' size='lg' onClick={submit} disabled={registrationStore.submitting}>
+                                    {registrationStore.submitting ?
+                                        <span>{t('common.please-wait')} <Spinner animation="border" variant="light" size="sm" /></span> :
+                                        <span>{t('registration.form.register')}</span>
+                                    }
+                                </Button>
+                            )}
+                        </Observer>
                     </Col>
                 </Row>
+                <Observer>
+                    {() => {
+                        if (!registrationStore.registerResult) {
+                            return (<></>)
+                        }
+
+                        return (
+                            <Row className='justify-content-md-center pt-3'>
+                                <Col md={buttonWidth}>
+                                    {getAlert()}
+                                </Col>
+                            </Row>
+                        )
+                    }}
+                </Observer>
                 <Row className='justify-content-md-center pt-3'>
                     <Col md={buttonWidth-1}>
                         <hr />

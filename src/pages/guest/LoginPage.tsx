@@ -8,6 +8,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { FaKey, FaUser } from 'react-icons/fa'
 import FormField from '../../components/form-field/FormField'
 
+type ResultAlert = {
+    variant: 'success' | 'warning' | 'danger'
+    message: string
+} | undefined
+
 const LoginPage = () => {
     const navigate = useNavigate()
     const { loginStore } = useStores()
@@ -22,6 +27,26 @@ const LoginPage = () => {
 
         if (await loginStore.submit() === 'SUCCESS') {
             navigate('/')
+        }
+    }
+
+    const getAlertData = (): ResultAlert => {
+        switch (loginStore.loginResult) {
+            case 'INCORRECT_CREDENTIALS':
+                return { variant: 'warning', message: t('login.messages.incorrect-credentials') }
+            case 'ERROR':
+                return { variant: 'danger', message: t('login.messages.error') }
+        }
+    }
+
+    const getAlert = () => {
+        const data = getAlertData()
+        if (data) {
+            return (
+                <Alert className='py-2 mb-0' variant={data.variant}>
+                    {data.message}
+                </Alert>
+            )
         }
     }
 
@@ -93,20 +118,14 @@ const LoginPage = () => {
                 </Row>
                 <Observer>
                     {() => {
-                        switch (loginStore.result) {
-                            case 'INCORRECT_CREDENTIALS': loginStore.form.message = s('login.messages.incorrect-credentials'); break
-                            case 'ERROR': loginStore.form.message = s('login.messages.error'); break;
-                        }
-                        
-                        if (!loginStore.form.showMessage)
+                        if (!loginStore.loginResult || loginStore.loginResult === 'SUCCESS') {
                             return (<></>)
+                        }
                         
                         return (
                             <Row className='justify-content-md-center pt-3'>
                                 <Col md={width}>
-                                    <Alert className='py-2 mb-0' variant='danger'>
-                                        {loginStore.form.message}
-                                    </Alert>
+                                    {getAlert()}
                                 </Col>
                             </Row>
                         )

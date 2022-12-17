@@ -40,7 +40,7 @@ export interface IAuthenticationClient {
      * @param body (optional) 
      * @return Success
      */
-    register(body: RegisterInput | undefined): Promise<User>;
+    register(body: RegisterInput | undefined): Promise<RegistrationResultApiResponse>;
 }
 
 export class AuthenticationClient extends ApiBaseClient implements IAuthenticationClient {
@@ -103,7 +103,7 @@ export class AuthenticationClient extends ApiBaseClient implements IAuthenticati
      * @param body (optional) 
      * @return Success
      */
-    register(body: RegisterInput | undefined): Promise<User> {
+    register(body: RegisterInput | undefined): Promise<RegistrationResultApiResponse> {
         let url_ = this.baseUrl + "/register";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -125,14 +125,14 @@ export class AuthenticationClient extends ApiBaseClient implements IAuthenticati
         });
     }
 
-    protected processRegister(response: Response): Promise<User> {
+    protected processRegister(response: Response): Promise<RegistrationResultApiResponse> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = User.fromJS(resultData200);
+            result200 = RegistrationResultApiResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -140,7 +140,7 @@ export class AuthenticationClient extends ApiBaseClient implements IAuthenticati
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<User>(null as any);
+        return Promise.resolve<RegistrationResultApiResponse>(null as any);
     }
 }
 
@@ -1754,6 +1754,63 @@ export interface IRegisterInput {
     email?: string | null;
 }
 
+export enum RegistrationResult {
+    Success = "Success",
+    UsernameAlreadyTaken = "UsernameAlreadyTaken",
+    Failure = "Failure",
+}
+
+export class RegistrationResultApiResponse implements IRegistrationResultApiResponse {
+    status?: ResponseStatus;
+    readonly message?: string | null;
+    result?: RegistrationResult;
+
+    constructor(data?: IRegistrationResultApiResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.status = _data["status"] !== undefined ? _data["status"] : <any>null;
+            (<any>this).message = _data["message"] !== undefined ? _data["message"] : <any>null;
+            this.result = _data["result"] !== undefined ? _data["result"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): RegistrationResultApiResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new RegistrationResultApiResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["status"] = this.status !== undefined ? this.status : <any>null;
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        data["result"] = this.result !== undefined ? this.result : <any>null;
+        return data;
+    }
+}
+
+export interface IRegistrationResultApiResponse {
+    status?: ResponseStatus;
+    message?: string | null;
+    result?: RegistrationResult;
+}
+
+export enum ResponseStatus {
+    Unknown = "Unknown",
+    Success = "Success",
+    Warning = "Warning",
+    Failure = "Failure",
+}
+
 export class UpdatePermissionGroupInput implements IUpdatePermissionGroupInput {
     name?: string | null;
     description?: string | null;
@@ -1924,73 +1981,6 @@ export class UpdatePermissionToGroupAssignmentInput implements IUpdatePermission
 
 export interface IUpdatePermissionToGroupAssignmentInput {
     active?: boolean | null;
-}
-
-export class User implements IUser {
-    id?: number;
-    login?: string | null;
-    role?: string | null;
-    permissions?: string[] | null;
-    firstName?: string | null;
-    lastName?: string | null;
-
-    constructor(data?: IUser) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
-            this.login = _data["login"] !== undefined ? _data["login"] : <any>null;
-            this.role = _data["role"] !== undefined ? _data["role"] : <any>null;
-            if (Array.isArray(_data["permissions"])) {
-                this.permissions = [] as any;
-                for (let item of _data["permissions"])
-                    this.permissions!.push(item);
-            }
-            else {
-                this.permissions = <any>null;
-            }
-            this.firstName = _data["firstName"] !== undefined ? _data["firstName"] : <any>null;
-            this.lastName = _data["lastName"] !== undefined ? _data["lastName"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): User {
-        data = typeof data === 'object' ? data : {};
-        let result = new User();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id !== undefined ? this.id : <any>null;
-        data["login"] = this.login !== undefined ? this.login : <any>null;
-        data["role"] = this.role !== undefined ? this.role : <any>null;
-        if (Array.isArray(this.permissions)) {
-            data["permissions"] = [];
-            for (let item of this.permissions)
-                data["permissions"].push(item);
-        }
-        data["firstName"] = this.firstName !== undefined ? this.firstName : <any>null;
-        data["lastName"] = this.lastName !== undefined ? this.lastName : <any>null;
-        return data;
-    }
-}
-
-export interface IUser {
-    id?: number;
-    login?: string | null;
-    role?: string | null;
-    permissions?: string[] | null;
-    firstName?: string | null;
-    lastName?: string | null;
 }
 
 export class ApiException extends Error {
