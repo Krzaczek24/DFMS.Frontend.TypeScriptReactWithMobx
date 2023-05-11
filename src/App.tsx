@@ -1,17 +1,13 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './app.scss'
-import AuthenticationService from './services/AuthenticationService';
 import { observer } from 'mobx-react-lite';
-import AuthorizedRouter from './components/navigation/routing/AuthorizedRouter'
-import UnauthorizedRouter from './components/navigation/routing/UnauthorizedRouter'
 import SelectLanguage from './components/SelectLanguage';
+import AppRouter from './components/navigation/routing/AppRouter'
 
 const App = observer(() => (
   <>
     <SelectLanguage />
-    {AuthenticationService.isLoggedIn()
-      ? <AuthorizedRouter /> 
-      : <UnauthorizedRouter />}
+    <AppRouter />
   </>
 ))
 

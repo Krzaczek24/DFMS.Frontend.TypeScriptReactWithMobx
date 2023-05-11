@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-const GreetingPage = () => {
+export const GreetingPage = () => {
     const { t } = useTranslation()
 
     return (
@@ -45,8 +45,6 @@ const GreetingPage = () => {
         </div>
     )
 }
-
-export default GreetingPage
 
 //import reportWebVitals from './reportWebVitals'
 //reportWebVitals(console.log)

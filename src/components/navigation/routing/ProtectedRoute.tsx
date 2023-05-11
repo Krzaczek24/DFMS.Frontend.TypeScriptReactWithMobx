@@ -1,6 +1,7 @@
-import { ReactElement } from 'react'
-import { Navigate } from 'react-router-dom'
-import AuthenticationService, { Role } from '../../../services/AuthenticationService'
+import { ReactElement } from "react"
+import { Navigate } from "react-router-dom"
+import { useStores } from "../../../stores"
+import { Role } from "../../../stores/AuthenticationStore"
 
 type ProtectedProps = {
     element: ReactElement,
@@ -10,8 +11,9 @@ type ProtectedProps = {
 }
 
 const ProtectedRoute = ({element, roles, permissions, notAllowedPathOrElement}: ProtectedProps): ReactElement => {
-    const { isLoggedIn, user } = AuthenticationService
-    if (!isLoggedIn()
+    const { authenticationStore } = useStores()
+    const { user } = authenticationStore
+    if (!authenticationStore.isAuthenticated
     || (roles && roles.length > 0 && roles.every((role) => user.role !== role))
     || (permissions && permissions.length > 0 && !user.hasAnyPermission(permissions))) {
         if (notAllowedPathOrElement === undefined) {

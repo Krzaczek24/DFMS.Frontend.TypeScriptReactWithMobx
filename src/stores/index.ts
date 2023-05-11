@@ -1,19 +1,24 @@
 import React from 'react'
-import LoginStore from './forms/LoginStore'
-import RegistrationStore from './forms/RegistrationStore'
+import AuthenticationStore from './AuthenticationStore'
+import LoginFormStore from './forms/LoginFormStore'
+import RegistrationFormStore from './forms/RegistrationFormStore'
 import PermissionStore from './PermissionStore'
 import UserStore from './UserStore'
 
 class RootStore {
-    loginStore: LoginStore
+    loginFormStore: LoginFormStore
+    registrationFormStore: RegistrationFormStore
+
+    authenticationStore: AuthenticationStore
     permissionStore: PermissionStore
-    registrationStore: RegistrationStore
     userStore: UserStore
 
     constructor() {
-        this.loginStore = new LoginStore(this)
+        this.loginFormStore = new LoginFormStore(this)
+        this.registrationFormStore = new RegistrationFormStore(this)
+
+        this.authenticationStore = new AuthenticationStore(this)
         this.permissionStore = new PermissionStore(this)
-        this.registrationStore = new RegistrationStore(this)
         this.userStore = new UserStore(this)
     }
 }

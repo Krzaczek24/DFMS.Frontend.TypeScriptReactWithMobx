@@ -11,4 +11,4 @@ class PermissionStore implements StoreInterface {
     }
 }
 
-export default  PermissionStore
+export default PermissionStore

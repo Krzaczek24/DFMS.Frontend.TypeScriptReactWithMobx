@@ -13,25 +13,28 @@ type ResultAlert = {
     message: string
 } | undefined
 
-const LoginPage = () => {
+export const LoginPage = () => {
     const navigate = useNavigate()
-    const { loginStore } = useStores()
+    const { loginFormStore, authenticationStore } = useStores()
     const { t } = useTranslation()
     const s = (translationKey: string): string => String(t(translationKey))
 
     const submit = async () => {
-        if (!loginStore.form.isValid) {
-            loginStore.form.revealInvalid()
+        if (!loginFormStore.form.isValid) {
+            loginFormStore.form.revealInvalid()
             return
         }
 
-        if (await loginStore.submit() === 'SUCCESS') {
+        await authenticationStore.login()
+
+        if (loginFormStore.result === 'SUCCESS') {
+            loginFormStore.form.clearAllFields()
             navigate('/')
         }
     }
 
     const getAlertData = (): ResultAlert => {
-        switch (loginStore.loginResult) {
+        switch (loginFormStore.result) {
             case 'INCORRECT_CREDENTIALS':
                 return { variant: 'warning', message: t('login.messages.incorrect-credentials') }
             case 'ERROR':
@@ -75,7 +78,7 @@ const LoginPage = () => {
                     <Col md={width}>
                         <FormField
                             icon={<FaUser />}
-                            field={loginStore.form.fields.username}
+                            field={loginFormStore.form.fields.username}
                             size='lg'
                             placeholder={s('login.form.username')}
                             tooltip-place='right'
@@ -90,7 +93,7 @@ const LoginPage = () => {
                     <Col md={width}>
                         <FormField
                             icon={<FaKey />}
-                            field={loginStore.form.fields.password}
+                            field={loginFormStore.form.fields.password}
                             type='password'
                             size='lg'
                             placeholder={s('login.form.password')}
@@ -106,8 +109,8 @@ const LoginPage = () => {
                     <Col className='d-grid' md={width}>
                         <Observer>
                             {() => (
-                                <Button variant='primary' size='lg' onClick={submit} disabled={loginStore.submitting}>
-                                    {loginStore.submitting ?
+                                <Button variant='primary' size='lg' onClick={submit} disabled={loginFormStore.submitting}>
+                                    {loginFormStore.submitting ?
                                         <span>{t('common.please-wait')} <Spinner animation="border" variant="light" size="sm" /></span> :
                                         <span>{t('login.form.sign-in')}</span>
                                     }
@@ -118,7 +121,7 @@ const LoginPage = () => {
                 </Row>
                 <Observer>
                     {() => {
-                        if (!loginStore.loginResult || loginStore.loginResult === 'SUCCESS') {
+                        if (!loginFormStore.result || loginFormStore.result === 'SUCCESS') {
                             return (<></>)
                         }
                         
@@ -145,5 +148,3 @@ const LoginPage = () => {
         </div>
     )
 }
-
-export default LoginPage

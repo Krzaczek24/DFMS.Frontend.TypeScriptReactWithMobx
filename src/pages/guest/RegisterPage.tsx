@@ -12,24 +12,26 @@ type ResultAlert = {
     message: string
 } | undefined
 
-const RegisterPage = () => {
-    const { registrationStore } = useStores()
+export const RegisterPage = () => {
+    const { registrationFormStore, authenticationStore } = useStores()
     const { t } = useTranslation()
     const s = (translation: string) => String(t(translation))
 
     const submit = async () => {
-        if (!registrationStore.form.isValid) {
-            registrationStore.form.revealInvalid()
+        if (!registrationFormStore.form.isValid) {
+            registrationFormStore.form.revealInvalid()
             return
         }
 
-        if (await registrationStore.submit() === RegistrationResult.Success) {
-            registrationStore.form.clearAllFields()
+        await authenticationStore.register()
+
+        if (registrationFormStore.result === RegistrationResult.Success) {
+            registrationFormStore.form.clearAllFields()
         }
     }
 
     const getAlertData = (): ResultAlert => {
-        switch (registrationStore.registerResult) {
+        switch (registrationFormStore.result) {
             case RegistrationResult.Success:
                 return { variant: 'success', message: t('registration.messages.success') }
             case RegistrationResult.UsernameAlreadyTaken:
@@ -76,7 +78,7 @@ const RegisterPage = () => {
                     <Col md={columnWidth}>
                         <FormField
                             icon={<FaUser />}
-                            field={registrationStore.form.fields.username}
+                            field={registrationFormStore.form.fields.username}
                             size='lg'
                             placeholder={s('registration.form.username')}
                             tooltip-variant='error'
@@ -88,7 +90,7 @@ const RegisterPage = () => {
                     <Col md={columnWidth}>
                         <FormField
                             icon={<FaAt />}
-                            field={registrationStore.form.fields.email}
+                            field={registrationFormStore.form.fields.email}
                             size='lg'
                             placeholder={s('registration.form.email')}
                             tooltip-variant='error'
@@ -102,7 +104,7 @@ const RegisterPage = () => {
                     <Col md={columnWidth}>
                         <FormField
                             icon={<FaKey />}
-                            field={registrationStore.form.fields.password}
+                            field={registrationFormStore.form.fields.password}
                             size='lg'
                             placeholder={s('registration.form.password')}
                             tooltip-variant='error'
@@ -115,7 +117,7 @@ const RegisterPage = () => {
                     <Col md={columnWidth}>
                         <FormField
                             icon={<FaLock />}
-                            field={registrationStore.form.fields.repeatPassword}
+                            field={registrationFormStore.form.fields.repeatPassword}
                             size='lg'
                             placeholder={s('registration.form.repeat-password')}
                             tooltip-variant='error'
@@ -133,7 +135,7 @@ const RegisterPage = () => {
                     <Col md={columnWidth}>
                         <FormField
                             icon={<FaPen />}
-                            field={registrationStore.form.fields.firstName}
+                            field={registrationFormStore.form.fields.firstName}
                             size='lg'
                             placeholder={s('registration.form.firstname')}
                             tooltip-variant='error'
@@ -145,7 +147,7 @@ const RegisterPage = () => {
                     <Col md={columnWidth}>
                         <FormField
                             icon={<FaPen />}
-                            field={registrationStore.form.fields.lastName}
+                            field={registrationFormStore.form.fields.lastName}
                             size='lg'
                             placeholder={s('registration.form.lastname')}
                             tooltip-variant='error'
@@ -159,8 +161,8 @@ const RegisterPage = () => {
                     <Col className='d-grid' md={buttonWidth}>
                         <Observer>
                             {() => (
-                                <Button variant='primary' size='lg' onClick={submit} disabled={registrationStore.submitting}>
-                                    {registrationStore.submitting ?
+                                <Button variant='primary' size='lg' onClick={submit} disabled={registrationFormStore.submitting}>
+                                    {registrationFormStore.submitting ?
                                         <span>{t('common.please-wait')} <Spinner animation="border" variant="light" size="sm" /></span> :
                                         <span>{t('registration.form.register')}</span>
                                     }
@@ -171,7 +173,7 @@ const RegisterPage = () => {
                 </Row>
                 <Observer>
                     {() => {
-                        if (!registrationStore.registerResult) {
+                        if (!registrationFormStore.result) {
                             return (<></>)
                         }
 
@@ -197,5 +199,3 @@ const RegisterPage = () => {
         </div>
     )
 }
-
-export default RegisterPage

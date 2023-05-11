@@ -1,9 +1,12 @@
-const HomePage = () => {
+import Navbar from "../../components/navigation/Navbar"
+
+export const HomePage = () => {
     return (
-        <div className="Home">
-            Home
-        </div>
+        <>
+            <Navbar />
+            <div className="Home">
+                Home
+            </div>
+        </>
     )
 }
-
-export default HomePage

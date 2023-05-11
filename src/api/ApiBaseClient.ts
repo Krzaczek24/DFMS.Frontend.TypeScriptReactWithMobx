@@ -1,5 +1,3 @@
-import AuthenticationService from "../services/AuthenticationService"
-
 export class ApiBaseClient {
     constructor() { }
     
@@ -13,7 +11,7 @@ export class ApiBaseClient {
     }
 
     protected transformOptions = async (options: RequestInit): Promise<RequestInit> => {
-        const { token } = AuthenticationService
+        const token = localStorage.getItem('tokenKey')
         options.headers = { ...options.headers, authorization: `Bearer ${token}` }
         return Promise.resolve(options)
     }

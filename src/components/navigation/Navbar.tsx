@@ -3,10 +3,12 @@ import './navbar.scss'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { FaPowerOff, FaUser, FaUserFriends } from 'react-icons/fa'
-import AuthenticationService from '../../services/AuthenticationService';
 import { IconType } from 'react-icons/lib';
+import { useStores } from '../../stores'
 
 const Navbar = () => {
+    const { authenticationStore } = useStores()
+
     return (
         <div className='navbar-container'>
             <div className='navbar'>
@@ -18,7 +20,7 @@ const Navbar = () => {
                     <LinkItem path='/' title={'DFMS'} />
                     <LinkItem path='/site-a' title='Strona A' icon={FaUser} />
                     <LinkItem path='/site-b' title='Strona B' icon={FaUserFriends} />
-                    <LinkItem path='/site-b' title='Logout' icon={FaPowerOff} onClick={AuthenticationService.logout} />
+                    <LinkItem path='/site-b' title='Logout' icon={FaPowerOff} onClick={authenticationStore.logout} />
                 </ul>
             </div>
         </div>
