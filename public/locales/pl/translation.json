@@ -4,6 +4,9 @@
         "please-wait": "Proszę czekać",
         "processing": "Przetwarzanie"
     },
+    "navmenu": {
+        "logout": "Wyloguj"
+    },
     "guest-screen": {
         "subtitle": "Witaj w Dynamic Forms Management System",
         "login": "Logowanie",

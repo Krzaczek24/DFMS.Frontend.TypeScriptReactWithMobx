@@ -51,7 +51,7 @@ $navbar-width: 200px;
 
 .navbar-container {
   float: left;
-  width: $navbar-width;
+  width: $navbar-width; //fit-content
   height: 100vh;
 }
 
@@ -60,10 +60,6 @@ $navbar-width: 200px;
   float: left;
   width: calc(100vw - $navbar-width);
   height: 100vh;
-}
-
-.guest-content-container {
-  width: 100vw;
 }
 
 .language-container {

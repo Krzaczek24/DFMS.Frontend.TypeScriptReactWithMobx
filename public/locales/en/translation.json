@@ -4,6 +4,9 @@
         "please-wait": "Please wait",
         "processing": "Processing"
     },
+    "navmenu": {
+        "logout": "Log out"
+    },
     "guest-screen": {
         "subtitle": "Welcome in Dynamic Forms Management System",
         "login": "Login",

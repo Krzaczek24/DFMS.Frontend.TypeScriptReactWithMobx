@@ -4,6 +4,9 @@
         "please-wait": "Будь ласка, зачекайте",
         "processing": "Обробка"
     },
+    "navmenu": {
+        "logout": "Вийти"
+    },
     "guest-screen": {
         "subtitle": "Ласкаво просимо до Dynamic Forms Management System",
         "login": "Увійти",

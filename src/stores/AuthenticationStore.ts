@@ -11,27 +11,59 @@ const api = new AuthenticationClient() as IAuthenticationClient
 
 export type Role = 'ADMIN' | 'MODERATOR' | 'MANAGER' | 'USER' | 'BLOCKED'
 
+type TokenRawData = {
+    id: number
+    login: string
+    role: Role
+    permissions: string[]
+    firstName: string | undefined
+    lastName: string | undefined
+    createdAt: string
+    lastLoginDate: string | undefined
+    currentLoginDate: string
+    iat: number
+    exp: number
+}
+
 export class User {
     id!: number
-    login!: string | undefined
+    login!: string
     role!: Role
     permissions!: string[]
     firstName: string | undefined
     lastName: string | undefined
+    name!: string
+    createdAt!: Date
+    lastLoginDate: Date | undefined
+    currentLoginDate!: Date
+
+    constructor(tokenData: TokenRawData) {
+        var targetProps = Object.keys(this)
+
+        Object.assign(this, tokenData)
+
+        this.createdAt = new Date(Date.parse(tokenData.createdAt))
+        this.currentLoginDate = new Date(Date.parse(tokenData.currentLoginDate))
+        if (tokenData.lastLoginDate) {
+            this.lastLoginDate = new Date(Date.parse(tokenData.lastLoginDate))
+        }
+        
+        Object.keys(this).forEach(property => {
+            if (!targetProps.includes(property)) {
+                delete this[property as keyof this]
+            }
+        })
+    }
+
     hasPermission = (permission: string): boolean => this.permissions?.includes(permission)
     hasAnyPermission = (permissions: string[]): boolean => permissions.some(this.hasPermission)
     hasAllPermissions = (permissions: string[]): boolean => permissions.every(this.hasPermission)
 }
 
-class TokenData extends User {
-    iat!: number
-    get issueDate() {
-        return new Date(this.iat * 1000)
-    }
-    exp!: number
-    get expirationDate() {
-        return new Date(this.exp * 1000)
-    }
+export type Token = {
+    key: string
+    issueDate: Date
+    expirationDate: Date
 }
 
 class AuthenticationStore implements StoreInterface {
@@ -39,34 +71,55 @@ class AuthenticationStore implements StoreInterface {
 
     constructor(rootStore: RootStore) {
         this.rootStore = rootStore
+        this.userData = null
+        this.tokenData = null
+        this.setTokenAndUserData(this.tokenKey)
         makeAutoObservable(this)
     }
 
-    get token () {
+    private userData: User | null
+    private tokenData: Token | null
+
+    private get tokenKey () {
         return localStorage.getItem(tokenLocalStorageKey)
+    }
+    private set tokenKey (value: string | null) {
+        if (value) {
+            localStorage.setItem(tokenLocalStorageKey, value)
+        } else {
+            localStorage.removeItem(tokenLocalStorageKey)
+        }
+
+        this.setTokenAndUserData(value)
     }
 
     get isAuthenticated () {
-        return this.tokenData != null
+        return this.tokenData && this.tokenData.expirationDate > new Date()
     }
 
     get user() {
-        return this.tokenData as User
+        return this.userData
     }
 
-    get tokenData() {
-        if (!this.token) {
-            return undefined
+    get token() {
+        return this.tokenData
+    }
+
+    private setTokenAndUserData = (tokenKey: string | null) => {
+        if (!tokenKey) {
+            this.tokenData = null
+            this.userData = null
+            return
         }
 
-        let tokenData = Object.assign(new TokenData(), jwt_decode(this.token) as TokenData)
-
-        if (new Date() > tokenData.expirationDate) {
-            localStorage.removeItem(tokenLocalStorageKey)
-            return undefined
+        console.log(jwt_decode(tokenKey))
+        let tokenRawData = jwt_decode(tokenKey) as TokenRawData
+        this.tokenData = {
+            key: tokenKey,
+            issueDate: new Date(tokenRawData.iat * 1000),
+            expirationDate: new Date(tokenRawData.exp * 1000)
         }
-
-        return tokenData
+        this.userData = new User(tokenRawData)
     }
 
     register = async() => {
@@ -114,7 +167,7 @@ class AuthenticationStore implements StoreInterface {
             }))
 
             if (token) {
-                localStorage.setItem(tokenLocalStorageKey, token)
+                this.tokenKey = token
             }
 
             loginFormStore.result = this.isAuthenticated ? 'SUCCESS' : 'INCORRECT_CREDENTIALS'
@@ -130,7 +183,7 @@ class AuthenticationStore implements StoreInterface {
             return
         }
 
-        localStorage.removeItem(tokenLocalStorageKey)
+        this.tokenKey = null
     }
 }
 
