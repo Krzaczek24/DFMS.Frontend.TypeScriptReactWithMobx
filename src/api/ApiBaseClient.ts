@@ -15,4 +15,8 @@ export class ApiBaseClient {
         options.headers = { ...options.headers, authorization: `Bearer ${token}` }
         return Promise.resolve(options)
     }
+
+    protected transformResult(url: string, response: Response, processor: (response: Response) => Promise<any>): Promise<any> { 
+        return processor(response);
+    }
 }

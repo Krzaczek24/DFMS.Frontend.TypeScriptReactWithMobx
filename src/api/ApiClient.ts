@@ -25,6 +25,10 @@ export class ApiBaseClient {
         options.headers = { ...options.headers, authorization: `Bearer ${token}` }
         return Promise.resolve(options)
     }
+
+    protected transformResult(url: string, response: Response, processor: (response: Response) => Promise<any>): Promise<any> { 
+        return processor(response);
+    }
 }
 
 export interface IAuthenticationClient {
@@ -33,13 +37,13 @@ export interface IAuthenticationClient {
      * @param body (optional) 
      * @return Success
      */
-    authenticate(body: LogonInput | undefined): Promise<string>;
+    authenticate(body: LogonInput | undefined): Promise<SwaggerResponse<LogonOutput>>;
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    register(body: RegisterInput | undefined): Promise<RegistrationResultApiResponse>;
+    register(body: RegisterInput | undefined): Promise<SwaggerResponse<void>>;
 }
 
 export class AuthenticationClient extends ApiBaseClient implements IAuthenticationClient {
@@ -57,7 +61,7 @@ export class AuthenticationClient extends ApiBaseClient implements IAuthenticati
      * @param body (optional) 
      * @return Success
      */
-    authenticate(body: LogonInput | undefined): Promise<string> {
+    authenticate(body: LogonInput | undefined): Promise<SwaggerResponse<LogonOutput>> {
         let url_ = this.baseUrl + "/authenticate";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -75,34 +79,75 @@ export class AuthenticationClient extends ApiBaseClient implements IAuthenticati
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processAuthenticate(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processAuthenticate(_response));
         });
     }
 
-    protected processAuthenticate(response: Response): Promise<string> {
+    protected processAuthenticate(response: Response): Promise<SwaggerResponse<LogonOutput>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : _responseText;
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
-    
-            return result200;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LogonOutput.fromJS(resultData200);
+            return new SwaggerResponse(status, _headers, result200);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<string>(null as any);
+        return Promise.resolve<SwaggerResponse<LogonOutput>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    register(body: RegisterInput | undefined): Promise<RegistrationResultApiResponse> {
+    register(body: RegisterInput | undefined): Promise<SwaggerResponse<void>> {
         let url_ = this.baseUrl + "/register";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -113,88 +158,71 @@ export class AuthenticationClient extends ApiBaseClient implements IAuthenticati
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "text/plain"
             }
         };
 
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processRegister(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processRegister(_response));
         });
     }
 
-    protected processRegister(response: Response): Promise<RegistrationResultApiResponse> {
+    protected processRegister(response: Response): Promise<SwaggerResponse<void>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RegistrationResultApiResponse.fromJS(resultData200);
-            return result200;
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<RegistrationResultApiResponse>(null as any);
-    }
-}
-
-export interface IFormTemplateClient {
-
-    /**
-     * @return Success
-     */
-    formTemplate(): Promise<void>;
-}
-
-export class FormTemplateClient extends ApiBaseClient implements IFormTemplateClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        super();
-        this.http = http ? http : window as any;
-        this.baseUrl = this.getBaseUrl("", baseUrl);
-    }
-
-    /**
-     * @return Success
-     */
-    formTemplate(): Promise<void> {
-        let url_ = this.baseUrl + "/form-template";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "POST",
-            headers: {
-            }
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.http.fetch(url_, transformedOptions_);
-        }).then((_response: Response) => {
-            return this.processFormTemplate(_response);
-        });
-    }
-
-    protected processFormTemplate(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
 }
 
@@ -203,17 +231,17 @@ export interface IFormTemplateFieldsClient {
     /**
      * @return Success
      */
-    fieldDefinitionsGet(): Promise<FormFieldDefinition[]>;
+    fieldDefinitionsGet(): Promise<SwaggerResponse<FormFieldDefinition[]>>;
 
     /**
      * @return Success
      */
-    fieldDefinitionsPost(): Promise<void>;
+    fieldDefinitionsPost(): Promise<SwaggerResponse<void>>;
 
     /**
      * @return Success
      */
-    fieldDefinitionsDelete(id: number): Promise<void>;
+    fieldDefinitionsDelete(id: number): Promise<SwaggerResponse<void>>;
 }
 
 export class FormTemplateFieldsClient extends ApiBaseClient implements IFormTemplateFieldsClient {
@@ -230,7 +258,7 @@ export class FormTemplateFieldsClient extends ApiBaseClient implements IFormTemp
     /**
      * @return Success
      */
-    fieldDefinitionsGet(): Promise<FormFieldDefinition[]> {
+    fieldDefinitionsGet(): Promise<SwaggerResponse<FormFieldDefinition[]>> {
         let url_ = this.baseUrl + "/form-template/field-definitions";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -244,11 +272,11 @@ export class FormTemplateFieldsClient extends ApiBaseClient implements IFormTemp
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processFieldDefinitionsGet(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processFieldDefinitionsGet(_response));
         });
     }
 
-    protected processFieldDefinitionsGet(response: Response): Promise<FormFieldDefinition[]> {
+    protected processFieldDefinitionsGet(response: Response): Promise<SwaggerResponse<FormFieldDefinition[]>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -263,20 +291,62 @@ export class FormTemplateFieldsClient extends ApiBaseClient implements IFormTemp
             else {
                 result200 = <any>null;
             }
-            return result200;
+            return new SwaggerResponse(status, _headers, result200);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<FormFieldDefinition[]>(null as any);
+        return Promise.resolve<SwaggerResponse<FormFieldDefinition[]>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @return Success
      */
-    fieldDefinitionsPost(): Promise<void> {
+    fieldDefinitionsPost(): Promise<SwaggerResponse<void>> {
         let url_ = this.baseUrl + "/form-template/field-definitions";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -289,29 +359,71 @@ export class FormTemplateFieldsClient extends ApiBaseClient implements IFormTemp
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processFieldDefinitionsPost(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processFieldDefinitionsPost(_response));
         });
     }
 
-    protected processFieldDefinitionsPost(response: Response): Promise<void> {
+    protected processFieldDefinitionsPost(response: Response): Promise<SwaggerResponse<void>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @return Success
      */
-    fieldDefinitionsDelete(id: number): Promise<void> {
+    fieldDefinitionsDelete(id: number): Promise<SwaggerResponse<void>> {
         let url_ = this.baseUrl + "/form-template/field-definitions/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -327,23 +439,65 @@ export class FormTemplateFieldsClient extends ApiBaseClient implements IFormTemp
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processFieldDefinitionsDelete(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processFieldDefinitionsDelete(_response));
         });
     }
 
-    protected processFieldDefinitionsDelete(response: Response): Promise<void> {
+    protected processFieldDefinitionsDelete(response: Response): Promise<SwaggerResponse<void>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
 }
 
@@ -352,24 +506,24 @@ export interface IFormTemplateFieldValidationClient {
     /**
      * @return Success
      */
-    validationRulesGet(): Promise<FormFieldValidationRuleDefinition[]>;
+    validationRuleGet(): Promise<SwaggerResponse<FormFieldValidationRuleDefinition[]>>;
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    validationRulesPost(body: FormFieldValidationRuleDefinition | undefined): Promise<void>;
+    validationRulePost(body: FormFieldValidationRuleDefinition | undefined): Promise<SwaggerResponse<void>>;
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    validationRulesPut(id: number, body: FormFieldValidationRuleDefinition | undefined): Promise<void>;
+    validationRulePut(id: number, body: FormFieldValidationRuleDefinition | undefined): Promise<SwaggerResponse<void>>;
 
     /**
      * @return Success
      */
-    validationRulesDelete(id: number): Promise<void>;
+    validationRuleDelete(id: number): Promise<SwaggerResponse<void>>;
 }
 
 export class FormTemplateFieldValidationClient extends ApiBaseClient implements IFormTemplateFieldValidationClient {
@@ -386,8 +540,8 @@ export class FormTemplateFieldValidationClient extends ApiBaseClient implements 
     /**
      * @return Success
      */
-    validationRulesGet(): Promise<FormFieldValidationRuleDefinition[]> {
-        let url_ = this.baseUrl + "/form-template/validation-rules";
+    validationRuleGet(): Promise<SwaggerResponse<FormFieldValidationRuleDefinition[]>> {
+        let url_ = this.baseUrl + "/form-template/validation-rule";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -400,11 +554,11 @@ export class FormTemplateFieldValidationClient extends ApiBaseClient implements 
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processValidationRulesGet(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processValidationRuleGet(_response));
         });
     }
 
-    protected processValidationRulesGet(response: Response): Promise<FormFieldValidationRuleDefinition[]> {
+    protected processValidationRuleGet(response: Response): Promise<SwaggerResponse<FormFieldValidationRuleDefinition[]>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -419,22 +573,64 @@ export class FormTemplateFieldValidationClient extends ApiBaseClient implements 
             else {
                 result200 = <any>null;
             }
-            return result200;
+            return new SwaggerResponse(status, _headers, result200);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<FormFieldValidationRuleDefinition[]>(null as any);
+        return Promise.resolve<SwaggerResponse<FormFieldValidationRuleDefinition[]>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    validationRulesPost(body: FormFieldValidationRuleDefinition | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/form-template/validation-rules";
+    validationRulePost(body: FormFieldValidationRuleDefinition | undefined): Promise<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/form-template/validation-rule";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -450,31 +646,73 @@ export class FormTemplateFieldValidationClient extends ApiBaseClient implements 
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processValidationRulesPost(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processValidationRulePost(_response));
         });
     }
 
-    protected processValidationRulesPost(response: Response): Promise<void> {
+    protected processValidationRulePost(response: Response): Promise<SwaggerResponse<void>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    validationRulesPut(id: number, body: FormFieldValidationRuleDefinition | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/form-template/validation-rules/{id}";
+    validationRulePut(id: number, body: FormFieldValidationRuleDefinition | undefined): Promise<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/form-template/validation-rule/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -493,30 +731,72 @@ export class FormTemplateFieldValidationClient extends ApiBaseClient implements 
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processValidationRulesPut(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processValidationRulePut(_response));
         });
     }
 
-    protected processValidationRulesPut(response: Response): Promise<void> {
+    protected processValidationRulePut(response: Response): Promise<SwaggerResponse<void>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @return Success
      */
-    validationRulesDelete(id: number): Promise<void> {
-        let url_ = this.baseUrl + "/form-template/validation-rules/{id}";
+    validationRuleDelete(id: number): Promise<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/form-template/validation-rule/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -531,23 +811,65 @@ export class FormTemplateFieldValidationClient extends ApiBaseClient implements 
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processValidationRulesDelete(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processValidationRuleDelete(_response));
         });
     }
 
-    protected processValidationRulesDelete(response: Response): Promise<void> {
+    protected processValidationRuleDelete(response: Response): Promise<SwaggerResponse<void>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
 }
 
@@ -556,41 +878,24 @@ export interface IPermissionClient {
     /**
      * @return Success
      */
-    structure(): Promise<PermissionGroup[]>;
+    structure(): Promise<SwaggerResponse<PermissionGroup[]>>;
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    permissionPost(body: AddPermissionInput | undefined): Promise<number>;
+    permissionPost(body: AddPermissionInput | undefined): Promise<SwaggerResponse<number>>;
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    permissionPatch(id: number, body: UpdatePermissionInput | undefined): Promise<void>;
+    permissionPatch(id: number, body: UpdatePermissionInput | undefined): Promise<SwaggerResponse<void>>;
 
     /**
      * @return Success
      */
-    permissionDelete(id: number): Promise<void>;
-
-    /**
-     * @param body (optional) 
-     * @return Success
-     */
-    assignmentPost(body: AssignPermissionToGroupInput | undefined): Promise<number>;
-
-    /**
-     * @param body (optional) 
-     * @return Success
-     */
-    assignmentPatch(id: number, body: UpdatePermissionToGroupAssignmentInput | undefined): Promise<void>;
-
-    /**
-     * @return Success
-     */
-    assignmentDelete(id: number): Promise<void>;
+    permissionDelete(id: number): Promise<SwaggerResponse<void>>;
 }
 
 export class PermissionClient extends ApiBaseClient implements IPermissionClient {
@@ -607,7 +912,7 @@ export class PermissionClient extends ApiBaseClient implements IPermissionClient
     /**
      * @return Success
      */
-    structure(): Promise<PermissionGroup[]> {
+    structure(): Promise<SwaggerResponse<PermissionGroup[]>> {
         let url_ = this.baseUrl + "/permission/structure";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -621,11 +926,11 @@ export class PermissionClient extends ApiBaseClient implements IPermissionClient
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processStructure(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processStructure(_response));
         });
     }
 
-    protected processStructure(response: Response): Promise<PermissionGroup[]> {
+    protected processStructure(response: Response): Promise<SwaggerResponse<PermissionGroup[]>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -640,21 +945,63 @@ export class PermissionClient extends ApiBaseClient implements IPermissionClient
             else {
                 result200 = <any>null;
             }
-            return result200;
+            return new SwaggerResponse(status, _headers, result200);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<PermissionGroup[]>(null as any);
+        return Promise.resolve<SwaggerResponse<PermissionGroup[]>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    permissionPost(body: AddPermissionInput | undefined): Promise<number> {
+    permissionPost(body: AddPermissionInput | undefined): Promise<SwaggerResponse<number>> {
         let url_ = this.baseUrl + "/permission";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -672,11 +1019,11 @@ export class PermissionClient extends ApiBaseClient implements IPermissionClient
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processPermissionPost(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processPermissionPost(_response));
         });
     }
 
-    protected processPermissionPost(response: Response): Promise<number> {
+    protected processPermissionPost(response: Response): Promise<SwaggerResponse<number>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -685,21 +1032,63 @@ export class PermissionClient extends ApiBaseClient implements IPermissionClient
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
                 result200 = resultData200 !== undefined ? resultData200 : <any>null;
     
-            return result200;
+            return new SwaggerResponse(status, _headers, result200);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<number>(null as any);
+        return Promise.resolve<SwaggerResponse<number>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    permissionPatch(id: number, body: UpdatePermissionInput | undefined): Promise<void> {
+    permissionPatch(id: number, body: UpdatePermissionInput | undefined): Promise<SwaggerResponse<void>> {
         let url_ = this.baseUrl + "/permission/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -719,29 +1108,71 @@ export class PermissionClient extends ApiBaseClient implements IPermissionClient
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processPermissionPatch(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processPermissionPatch(_response));
         });
     }
 
-    protected processPermissionPatch(response: Response): Promise<void> {
+    protected processPermissionPatch(response: Response): Promise<SwaggerResponse<void>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @return Success
      */
-    permissionDelete(id: number): Promise<void> {
+    permissionDelete(id: number): Promise<SwaggerResponse<void>> {
         let url_ = this.baseUrl + "/permission/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -757,149 +1188,65 @@ export class PermissionClient extends ApiBaseClient implements IPermissionClient
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processPermissionDelete(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processPermissionDelete(_response));
         });
     }
 
-    protected processPermissionDelete(response: Response): Promise<void> {
+    protected processPermissionDelete(response: Response): Promise<SwaggerResponse<void>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * @param body (optional) 
-     * @return Success
-     */
-    assignmentPost(body: AssignPermissionToGroupInput | undefined): Promise<number> {
-        let url_ = this.baseUrl + "/permission/assignment";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "text/plain"
-            }
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.http.fetch(url_, transformedOptions_);
-        }).then((_response: Response) => {
-            return this.processAssignmentPost(_response);
-        });
-    }
-
-    protected processAssignmentPost(response: Response): Promise<number> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
-    
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<number>(null as any);
-    }
-
-    /**
-     * @param body (optional) 
-     * @return Success
-     */
-    assignmentPatch(id: number, body: UpdatePermissionToGroupAssignmentInput | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/permission/assignment/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.http.fetch(url_, transformedOptions_);
-        }).then((_response: Response) => {
-            return this.processAssignmentPatch(_response);
-        });
-    }
-
-    protected processAssignmentPatch(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * @return Success
-     */
-    assignmentDelete(id: number): Promise<void> {
-        let url_ = this.baseUrl + "/permission/assignment/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "DELETE",
-            headers: {
-            }
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.http.fetch(url_, transformedOptions_);
-        }).then((_response: Response) => {
-            return this.processAssignmentDelete(_response);
-        });
-    }
-
-    protected processAssignmentDelete(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
 }
 
@@ -909,35 +1256,45 @@ export interface IPermissionGroupClient {
      * @param body (optional) 
      * @return Success
      */
-    permissionGroupPost(body: AddPermissionGroupInput | undefined): Promise<number>;
+    permissionGroupPost(body: AddPermissionGroupInput | undefined): Promise<SwaggerResponse<number>>;
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    permissionGroupPatch(id: number, body: UpdatePermissionGroupInput | undefined): Promise<void>;
+    permissionGroupPatch(id: number, body: UpdatePermissionInput | undefined): Promise<SwaggerResponse<void>>;
 
     /**
      * @return Success
      */
-    permissionGroupDelete(id: number): Promise<void>;
-
-    /**
-     * @param body (optional) 
-     * @return Success
-     */
-    assignmentPost(body: AssignPermissionGroupToUserInput | undefined): Promise<number>;
-
-    /**
-     * @param body (optional) 
-     * @return Success
-     */
-    assignmentPatch(id: number, body: UpdatePermissionGroupToUserAssignmentInput | undefined): Promise<void>;
+    permissionGroupDelete(id: number): Promise<SwaggerResponse<void>>;
 
     /**
      * @return Success
      */
-    assignmentDelete(id: number): Promise<void>;
+    permissionPost(group_id: number, permission_id: number): Promise<SwaggerResponse<void>>;
+
+    /**
+     * @return Success
+     */
+    permissionDelete(group_id: number, permission_id: number): Promise<SwaggerResponse<void>>;
+
+    /**
+     * @param valid_until (optional) 
+     * @return Success
+     */
+    userPost(group_id: number, user_id: number, valid_until: Date | undefined): Promise<SwaggerResponse<void>>;
+
+    /**
+     * @param valid_until (optional) 
+     * @return Success
+     */
+    userPatch(group_id: number, user_id: number, valid_until: Date | undefined): Promise<SwaggerResponse<void>>;
+
+    /**
+     * @return Success
+     */
+    userDelete(group_id: number, user_id: number): Promise<SwaggerResponse<void>>;
 }
 
 export class PermissionGroupClient extends ApiBaseClient implements IPermissionGroupClient {
@@ -955,7 +1312,7 @@ export class PermissionGroupClient extends ApiBaseClient implements IPermissionG
      * @param body (optional) 
      * @return Success
      */
-    permissionGroupPost(body: AddPermissionGroupInput | undefined): Promise<number> {
+    permissionGroupPost(body: AddPermissionGroupInput | undefined): Promise<SwaggerResponse<number>> {
         let url_ = this.baseUrl + "/permission-group";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -973,11 +1330,11 @@ export class PermissionGroupClient extends ApiBaseClient implements IPermissionG
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processPermissionGroupPost(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processPermissionGroupPost(_response));
         });
     }
 
-    protected processPermissionGroupPost(response: Response): Promise<number> {
+    protected processPermissionGroupPost(response: Response): Promise<SwaggerResponse<number>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -986,21 +1343,63 @@ export class PermissionGroupClient extends ApiBaseClient implements IPermissionG
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
                 result200 = resultData200 !== undefined ? resultData200 : <any>null;
     
-            return result200;
+            return new SwaggerResponse(status, _headers, result200);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<number>(null as any);
+        return Promise.resolve<SwaggerResponse<number>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    permissionGroupPatch(id: number, body: UpdatePermissionGroupInput | undefined): Promise<void> {
+    permissionGroupPatch(id: number, body: UpdatePermissionInput | undefined): Promise<SwaggerResponse<void>> {
         let url_ = this.baseUrl + "/permission-group/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -1020,29 +1419,71 @@ export class PermissionGroupClient extends ApiBaseClient implements IPermissionG
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processPermissionGroupPatch(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processPermissionGroupPatch(_response));
         });
     }
 
-    protected processPermissionGroupPatch(response: Response): Promise<void> {
+    protected processPermissionGroupPatch(response: Response): Promise<SwaggerResponse<void>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @return Success
      */
-    permissionGroupDelete(id: number): Promise<void> {
+    permissionGroupDelete(id: number): Promise<SwaggerResponse<void>> {
         let url_ = this.baseUrl + "/permission-group/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -1058,121 +1499,161 @@ export class PermissionGroupClient extends ApiBaseClient implements IPermissionG
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processPermissionGroupDelete(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processPermissionGroupDelete(_response));
         });
     }
 
-    protected processPermissionGroupDelete(response: Response): Promise<void> {
+    protected processPermissionGroupDelete(response: Response): Promise<SwaggerResponse<void>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
-     * @param body (optional) 
      * @return Success
      */
-    assignmentPost(body: AssignPermissionGroupToUserInput | undefined): Promise<number> {
-        let url_ = this.baseUrl + "/permission-group/assignment";
+    permissionPost(group_id: number, permission_id: number): Promise<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/permission-group/{group-id}/permission/{permission-id}";
+        if (group_id === undefined || group_id === null)
+            throw new Error("The parameter 'group_id' must be defined.");
+        url_ = url_.replace("{group-id}", encodeURIComponent("" + group_id));
+        if (permission_id === undefined || permission_id === null)
+            throw new Error("The parameter 'permission_id' must be defined.");
+        url_ = url_.replace("{permission-id}", encodeURIComponent("" + permission_id));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_: RequestInit = {
-            body: content_,
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Accept": "text/plain"
             }
         };
 
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processAssignmentPost(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processPermissionPost(_response));
         });
     }
 
-    protected processAssignmentPost(response: Response): Promise<number> {
+    protected processPermissionPost(response: Response): Promise<SwaggerResponse<void>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
-    
-            return result200;
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<number>(null as any);
-    }
-
-    /**
-     * @param body (optional) 
-     * @return Success
-     */
-    assignmentPatch(id: number, body: UpdatePermissionGroupToUserAssignmentInput | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/permission-group/assignment/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.http.fetch(url_, transformedOptions_);
-        }).then((_response: Response) => {
-            return this.processAssignmentPatch(_response);
-        });
-    }
-
-    protected processAssignmentPatch(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @return Success
      */
-    assignmentDelete(id: number): Promise<void> {
-        let url_ = this.baseUrl + "/permission-group/assignment/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+    permissionDelete(group_id: number, permission_id: number): Promise<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/permission-group/{group-id}/permission/{permission-id}";
+        if (group_id === undefined || group_id === null)
+            throw new Error("The parameter 'group_id' must be defined.");
+        url_ = url_.replace("{group-id}", encodeURIComponent("" + group_id));
+        if (permission_id === undefined || permission_id === null)
+            throw new Error("The parameter 'permission_id' must be defined.");
+        url_ = url_.replace("{permission-id}", encodeURIComponent("" + permission_id));
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -1184,30 +1665,330 @@ export class PermissionGroupClient extends ApiBaseClient implements IPermissionG
         return this.transformOptions(options_).then(transformedOptions_ => {
             return this.http.fetch(url_, transformedOptions_);
         }).then((_response: Response) => {
-            return this.processAssignmentDelete(_response);
+            return this.transformResult(url_, _response, (_response: Response) => this.processPermissionDelete(_response));
         });
     }
 
-    protected processAssignmentDelete(response: Response): Promise<void> {
+    protected processPermissionDelete(response: Response): Promise<SwaggerResponse<void>> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param valid_until (optional) 
+     * @return Success
+     */
+    userPost(group_id: number, user_id: number, valid_until: Date | undefined): Promise<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/permission-group/{group-id}/user/{user-id}?";
+        if (group_id === undefined || group_id === null)
+            throw new Error("The parameter 'group_id' must be defined.");
+        url_ = url_.replace("{group-id}", encodeURIComponent("" + group_id));
+        if (user_id === undefined || user_id === null)
+            throw new Error("The parameter 'user_id' must be defined.");
+        url_ = url_.replace("{user-id}", encodeURIComponent("" + user_id));
+        if (valid_until === null)
+            throw new Error("The parameter 'valid_until' cannot be null.");
+        else if (valid_until !== undefined)
+            url_ += "valid-until=" + encodeURIComponent(valid_until ? "" + valid_until.toISOString() : "") + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.transformResult(url_, _response, (_response: Response) => this.processUserPost(_response));
+        });
+    }
+
+    protected processUserPost(response: Response): Promise<SwaggerResponse<void>> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param valid_until (optional) 
+     * @return Success
+     */
+    userPatch(group_id: number, user_id: number, valid_until: Date | undefined): Promise<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/permission-group/{group-id}/user/{user-id}?";
+        if (group_id === undefined || group_id === null)
+            throw new Error("The parameter 'group_id' must be defined.");
+        url_ = url_.replace("{group-id}", encodeURIComponent("" + group_id));
+        if (user_id === undefined || user_id === null)
+            throw new Error("The parameter 'user_id' must be defined.");
+        url_ = url_.replace("{user-id}", encodeURIComponent("" + user_id));
+        if (valid_until === null)
+            throw new Error("The parameter 'valid_until' cannot be null.");
+        else if (valid_until !== undefined)
+            url_ += "valid-until=" + encodeURIComponent(valid_until ? "" + valid_until.toISOString() : "") + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "PATCH",
+            headers: {
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.transformResult(url_, _response, (_response: Response) => this.processUserPatch(_response));
+        });
+    }
+
+    protected processUserPatch(response: Response): Promise<SwaggerResponse<void>> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return Success
+     */
+    userDelete(group_id: number, user_id: number): Promise<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/permission-group/{group-id}/user/{user-id}";
+        if (group_id === undefined || group_id === null)
+            throw new Error("The parameter 'group_id' must be defined.");
+        url_ = url_.replace("{group-id}", encodeURIComponent("" + group_id));
+        if (user_id === undefined || user_id === null)
+            throw new Error("The parameter 'user_id' must be defined.");
+        url_ = url_.replace("{user-id}", encodeURIComponent("" + user_id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.transformResult(url_, _response, (_response: Response) => this.processUserDelete(_response));
+        });
+    }
+
+    protected processUserDelete(response: Response): Promise<SwaggerResponse<void>> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return new SwaggerResponse(status, _headers, null as any);
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ErrorResponse.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ErrorResponse.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ErrorResponse.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ErrorResponse.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ErrorResponse.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
 }
 
 export class AddPermissionGroupInput implements IAddPermissionGroupInput {
     name!: string;
     description!: string;
-    active?: boolean | null;
 
     constructor(data?: IAddPermissionGroupInput) {
         if (data) {
@@ -1222,7 +2003,6 @@ export class AddPermissionGroupInput implements IAddPermissionGroupInput {
         if (_data) {
             this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
             this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
-            this.active = _data["active"] !== undefined ? _data["active"] : <any>null;
         }
     }
 
@@ -1237,7 +2017,6 @@ export class AddPermissionGroupInput implements IAddPermissionGroupInput {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name !== undefined ? this.name : <any>null;
         data["description"] = this.description !== undefined ? this.description : <any>null;
-        data["active"] = this.active !== undefined ? this.active : <any>null;
         return data;
     }
 }
@@ -1245,13 +2024,11 @@ export class AddPermissionGroupInput implements IAddPermissionGroupInput {
 export interface IAddPermissionGroupInput {
     name: string;
     description: string;
-    active?: boolean | null;
 }
 
 export class AddPermissionInput implements IAddPermissionInput {
     name!: string;
     description!: string;
-    active?: boolean | null;
 
     constructor(data?: IAddPermissionInput) {
         if (data) {
@@ -1266,7 +2043,6 @@ export class AddPermissionInput implements IAddPermissionInput {
         if (_data) {
             this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
             this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
-            this.active = _data["active"] !== undefined ? _data["active"] : <any>null;
         }
     }
 
@@ -1281,7 +2057,6 @@ export class AddPermissionInput implements IAddPermissionInput {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name !== undefined ? this.name : <any>null;
         data["description"] = this.description !== undefined ? this.description : <any>null;
-        data["active"] = this.active !== undefined ? this.active : <any>null;
         return data;
     }
 }
@@ -1289,16 +2064,25 @@ export class AddPermissionInput implements IAddPermissionInput {
 export interface IAddPermissionInput {
     name: string;
     description: string;
-    active?: boolean | null;
 }
 
-export class AssignPermissionGroupToUserInput implements IAssignPermissionGroupToUserInput {
-    permissionId!: number;
-    permissionGroupId!: number;
-    validUntil?: Date | null;
-    active?: boolean | null;
+export enum ErrorCode {
+    UNKNOWN = "UNKNOWN",
+    INVALID_REQUEST_FIELD_VALUE = "INVALID_REQUEST_FIELD_VALUE",
+    USERNAME_ALREADY_TAKEN = "USERNAME_ALREADY_TAKEN",
+    RESOURCE_NOT_FOUND = "RESOURCE_NOT_FOUND",
+    NON_UNIQUE_NAME = "NON_UNIQUE_NAME",
+    RESOURCE_IN_USE = "RESOURCE_IN_USE",
+    NON_UNIQUE_RELATION = "NON_UNIQUE_RELATION",
+    UNAUTHORIZED = "UNAUTHORIZED",
+    FORBIDDEN = "FORBIDDEN",
+}
 
-    constructor(data?: IAssignPermissionGroupToUserInput) {
+export class ErrorModel implements IErrorModel {
+    code?: ErrorCode;
+    message?: string | null;
+
+    constructor(data?: IErrorModel) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1309,43 +2093,35 @@ export class AssignPermissionGroupToUserInput implements IAssignPermissionGroupT
 
     init(_data?: any) {
         if (_data) {
-            this.permissionId = _data["permissionId"] !== undefined ? _data["permissionId"] : <any>null;
-            this.permissionGroupId = _data["permissionGroupId"] !== undefined ? _data["permissionGroupId"] : <any>null;
-            this.validUntil = _data["validUntil"] ? new Date(_data["validUntil"].toString()) : <any>null;
-            this.active = _data["active"] !== undefined ? _data["active"] : <any>null;
+            this.code = _data["code"] !== undefined ? _data["code"] : <any>null;
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
         }
     }
 
-    static fromJS(data: any): AssignPermissionGroupToUserInput {
+    static fromJS(data: any): ErrorModel {
         data = typeof data === 'object' ? data : {};
-        let result = new AssignPermissionGroupToUserInput();
+        let result = new ErrorModel();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["permissionId"] = this.permissionId !== undefined ? this.permissionId : <any>null;
-        data["permissionGroupId"] = this.permissionGroupId !== undefined ? this.permissionGroupId : <any>null;
-        data["validUntil"] = this.validUntil ? this.validUntil.toISOString() : <any>null;
-        data["active"] = this.active !== undefined ? this.active : <any>null;
+        data["code"] = this.code !== undefined ? this.code : <any>null;
+        data["message"] = this.message !== undefined ? this.message : <any>null;
         return data;
     }
 }
 
-export interface IAssignPermissionGroupToUserInput {
-    permissionId: number;
-    permissionGroupId: number;
-    validUntil?: Date | null;
-    active?: boolean | null;
+export interface IErrorModel {
+    code?: ErrorCode;
+    message?: string | null;
 }
 
-export class AssignPermissionToGroupInput implements IAssignPermissionToGroupInput {
-    permissionId!: number;
-    permissionGroupId!: number;
-    active?: boolean | null;
+export class ErrorResponse implements IErrorResponse {
+    errors?: ErrorModel[] | null;
 
-    constructor(data?: IAssignPermissionToGroupInput) {
+    constructor(data?: IErrorResponse) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1356,72 +2132,37 @@ export class AssignPermissionToGroupInput implements IAssignPermissionToGroupInp
 
     init(_data?: any) {
         if (_data) {
-            this.permissionId = _data["permissionId"] !== undefined ? _data["permissionId"] : <any>null;
-            this.permissionGroupId = _data["permissionGroupId"] !== undefined ? _data["permissionGroupId"] : <any>null;
-            this.active = _data["active"] !== undefined ? _data["active"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): AssignPermissionToGroupInput {
-        data = typeof data === 'object' ? data : {};
-        let result = new AssignPermissionToGroupInput();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["permissionId"] = this.permissionId !== undefined ? this.permissionId : <any>null;
-        data["permissionGroupId"] = this.permissionGroupId !== undefined ? this.permissionGroupId : <any>null;
-        data["active"] = this.active !== undefined ? this.active : <any>null;
-        return data;
-    }
-}
-
-export interface IAssignPermissionToGroupInput {
-    permissionId: number;
-    permissionGroupId: number;
-    active?: boolean | null;
-}
-
-export class DateTimeNullableSpecifiable implements IDateTimeNullableSpecifiable {
-    value?: Date | null;
-    readonly isSpecified?: boolean;
-
-    constructor(data?: IDateTimeNullableSpecifiable) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
+            if (Array.isArray(_data["errors"])) {
+                this.errors = [] as any;
+                for (let item of _data["errors"])
+                    this.errors!.push(ErrorModel.fromJS(item));
+            }
+            else {
+                this.errors = <any>null;
             }
         }
     }
 
-    init(_data?: any) {
-        if (_data) {
-            this.value = _data["value"] ? new Date(_data["value"].toString()) : <any>null;
-            (<any>this).isSpecified = _data["isSpecified"] !== undefined ? _data["isSpecified"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): DateTimeNullableSpecifiable {
+    static fromJS(data: any): ErrorResponse {
         data = typeof data === 'object' ? data : {};
-        let result = new DateTimeNullableSpecifiable();
+        let result = new ErrorResponse();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["value"] = this.value ? this.value.toISOString() : <any>null;
-        data["isSpecified"] = this.isSpecified !== undefined ? this.isSpecified : <any>null;
+        if (Array.isArray(this.errors)) {
+            data["errors"] = [];
+            for (let item of this.errors)
+                data["errors"].push(item.toJSON());
+        }
         return data;
     }
 }
 
-export interface IDateTimeNullableSpecifiable {
-    value?: Date | null;
-    isSpecified?: boolean;
+export interface IErrorResponse {
+    errors?: ErrorModel[] | null;
 }
 
 export class FormFieldDefinition implements IFormFieldDefinition {
@@ -1590,6 +2331,42 @@ export interface ILogonInput {
     passwordHash: string;
 }
 
+export class LogonOutput implements ILogonOutput {
+    token?: string | null;
+
+    constructor(data?: ILogonOutput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.token = _data["token"] !== undefined ? _data["token"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): LogonOutput {
+        data = typeof data === 'object' ? data : {};
+        let result = new LogonOutput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["token"] = this.token !== undefined ? this.token : <any>null;
+        return data;
+    }
+}
+
+export interface ILogonOutput {
+    token?: string | null;
+}
+
 export class Permission implements IPermission {
     id?: number;
     name?: string | null;
@@ -1753,155 +2530,6 @@ export interface IRegisterInput {
     email?: string | null;
 }
 
-export enum RegistrationResult {
-    Success = "Success",
-    UsernameAlreadyTaken = "UsernameAlreadyTaken",
-    Failure = "Failure",
-}
-
-export class RegistrationResultApiResponse implements IRegistrationResultApiResponse {
-    status?: ResponseStatus;
-    readonly message?: string | null;
-    result?: RegistrationResult;
-
-    constructor(data?: IRegistrationResultApiResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.status = _data["status"] !== undefined ? _data["status"] : <any>null;
-            (<any>this).message = _data["message"] !== undefined ? _data["message"] : <any>null;
-            this.result = _data["result"] !== undefined ? _data["result"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): RegistrationResultApiResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new RegistrationResultApiResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["status"] = this.status !== undefined ? this.status : <any>null;
-        data["message"] = this.message !== undefined ? this.message : <any>null;
-        data["result"] = this.result !== undefined ? this.result : <any>null;
-        return data;
-    }
-}
-
-export interface IRegistrationResultApiResponse {
-    status?: ResponseStatus;
-    message?: string | null;
-    result?: RegistrationResult;
-}
-
-export enum ResponseStatus {
-    Unknown = "Unknown",
-    Success = "Success",
-    Warning = "Warning",
-    Failure = "Failure",
-}
-
-export class UpdatePermissionGroupInput implements IUpdatePermissionGroupInput {
-    name?: string | null;
-    description?: string | null;
-    active?: boolean | null;
-
-    constructor(data?: IUpdatePermissionGroupInput) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
-            this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
-            this.active = _data["active"] !== undefined ? _data["active"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): UpdatePermissionGroupInput {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdatePermissionGroupInput();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name !== undefined ? this.name : <any>null;
-        data["description"] = this.description !== undefined ? this.description : <any>null;
-        data["active"] = this.active !== undefined ? this.active : <any>null;
-        return data;
-    }
-}
-
-export interface IUpdatePermissionGroupInput {
-    name?: string | null;
-    description?: string | null;
-    active?: boolean | null;
-}
-
-export class UpdatePermissionGroupToUserAssignmentInput implements IUpdatePermissionGroupToUserAssignmentInput {
-    permissionId!: number;
-    permissionGroupId!: number;
-    validUntil?: DateTimeNullableSpecifiable;
-    active?: boolean | null;
-
-    constructor(data?: IUpdatePermissionGroupToUserAssignmentInput) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.permissionId = _data["permissionId"] !== undefined ? _data["permissionId"] : <any>null;
-            this.permissionGroupId = _data["permissionGroupId"] !== undefined ? _data["permissionGroupId"] : <any>null;
-            this.validUntil = _data["validUntil"] ? DateTimeNullableSpecifiable.fromJS(_data["validUntil"]) : <any>null;
-            this.active = _data["active"] !== undefined ? _data["active"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): UpdatePermissionGroupToUserAssignmentInput {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdatePermissionGroupToUserAssignmentInput();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["permissionId"] = this.permissionId !== undefined ? this.permissionId : <any>null;
-        data["permissionGroupId"] = this.permissionGroupId !== undefined ? this.permissionGroupId : <any>null;
-        data["validUntil"] = this.validUntil ? this.validUntil.toJSON() : <any>null;
-        data["active"] = this.active !== undefined ? this.active : <any>null;
-        return data;
-    }
-}
-
-export interface IUpdatePermissionGroupToUserAssignmentInput {
-    permissionId: number;
-    permissionGroupId: number;
-    validUntil?: DateTimeNullableSpecifiable;
-    active?: boolean | null;
-}
-
 export class UpdatePermissionInput implements IUpdatePermissionInput {
     name?: string | null;
     description?: string | null;
@@ -1946,40 +2574,17 @@ export interface IUpdatePermissionInput {
     active?: boolean | null;
 }
 
-export class UpdatePermissionToGroupAssignmentInput implements IUpdatePermissionToGroupAssignmentInput {
-    active?: boolean | null;
+export class SwaggerResponse<TResult> {
+    status: number;
+    headers: { [key: string]: any; };
+    result: TResult;
 
-    constructor(data?: IUpdatePermissionToGroupAssignmentInput) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+    constructor(status: number, headers: { [key: string]: any; }, result: TResult)
+    {
+        this.status = status;
+        this.headers = headers;
+        this.result = result;
     }
-
-    init(_data?: any) {
-        if (_data) {
-            this.active = _data["active"] !== undefined ? _data["active"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): UpdatePermissionToGroupAssignmentInput {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdatePermissionToGroupAssignmentInput();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["active"] = this.active !== undefined ? this.active : <any>null;
-        return data;
-    }
-}
-
-export interface IUpdatePermissionToGroupAssignmentInput {
-    active?: boolean | null;
 }
 
 export class ApiException extends Error {

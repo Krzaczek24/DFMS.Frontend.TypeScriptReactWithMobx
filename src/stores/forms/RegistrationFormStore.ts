@@ -2,7 +2,6 @@ import RootStore from ".."
 import { Form, FormField } from "../../models/forms"
 import StoreInterface from "../StoreInterface"
 import { makeAutoObservable } from "mobx"
-import { RegistrationResult } from "../../api/ApiClient"
 
 export type RegistrationData = {
     username: string
@@ -10,6 +9,12 @@ export type RegistrationData = {
     firstName: string
     lastName: string
     email: string
+}
+
+export enum RegistrationResult {
+    Success = 'SUCCESS',
+    UsernameAlreadyTaken = 'USERNAME_ALREADY_TAKEN',
+    Failure = 'FAILURE'
 }
 
 class RegistrationFormStore implements StoreInterface {

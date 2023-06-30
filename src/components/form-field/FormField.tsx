@@ -12,6 +12,7 @@ type FormFieldProps = {
     icon?: React.ReactElement
     field: FormFieldModel
     placeholder?: string
+    disabled?: boolean
     'center-text'?: boolean
     'aria-describedby'?: string
     'auto-complete'?: 'off' | 'on' | 'username' | 'name' | 'given-name' | 'additional-name' | 'family-name' | 'nickname' | 'email' | 'username' | 'new-password' | 'current-password' | 'one-time-code' | 'organization-title' | 'organization' | 'street-address' | 'postal-code' | 'language' | 'bday' | 'sex' | 'tel'
@@ -51,6 +52,7 @@ const FormField = (props: FormFieldProps) => {
                             placeholder={props.placeholder} 
                             aria-describedby={props['aria-describedby']}
                             autoComplete={props['auto-complete']}
+                            disabled={props.disabled}
                             type={props.type}
                             value={props.field.value}
                             isInvalid={props.field.isInvalid}

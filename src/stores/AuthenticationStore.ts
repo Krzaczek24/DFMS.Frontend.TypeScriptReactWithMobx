@@ -1,10 +1,12 @@
-import { IAuthenticationClient, AuthenticationClient, LogonInput, RegisterInput, RegistrationResult } from "../api/ApiClient"
+import { IAuthenticationClient, AuthenticationClient, LogonInput, RegisterInput, ErrorResponse, ErrorCode } from "../api/ApiClient"
 import StoreInterface from "./StoreInterface"
 import RootStore from "."
 import { makeAutoObservable } from "mobx"
 import { sha512 } from "sha512-crypt-ts";
 import { ApiException } from "../api/ApiClient"
 import jwt_decode from "jwt-decode"
+import { RegistrationResult } from "./forms/RegistrationFormStore"
+import { LoginResult } from "./forms/LoginFormStore"
 
 const tokenLocalStorageKey = 'tokenKey'
 const api = new AuthenticationClient() as IAuthenticationClient
@@ -134,16 +136,20 @@ class AuthenticationStore implements StoreInterface {
         const { username, password, firstName, lastName, email } = registrationFormStore.registrationData
         
         try {
-            const response = await api.register(new RegisterInput({
+            await api.register(new RegisterInput({
                 username,
                 passwordHash: sha512.base64(password),
                 firstName,
                 lastName,
                 email
             }))
-            registrationFormStore.result = response?.result
+            registrationFormStore.result = RegistrationResult.Success
         } catch (exception) {
-            registrationFormStore.result = RegistrationResult.Failure
+            if (exception instanceof ErrorResponse && exception.errors?.some(e => e.code === ErrorCode.USERNAME_ALREADY_TAKEN)) {
+                registrationFormStore.result = RegistrationResult.UsernameAlreadyTaken
+            } else {
+                registrationFormStore.result = RegistrationResult.Failure
+            }
         }
 
         registrationFormStore.submitting = false
@@ -167,12 +173,16 @@ class AuthenticationStore implements StoreInterface {
             }))
 
             if (token) {
-                this.tokenKey = token
+                this.tokenKey = token.result.token ?? null
             }
 
-            loginFormStore.result = this.isAuthenticated ? 'SUCCESS' : 'INCORRECT_CREDENTIALS'
+            loginFormStore.result = this.isAuthenticated ? LoginResult.Success : LoginResult.IncorrectCredentials
         } catch (exception) {
-            loginFormStore.result = (exception as ApiException)?.status === 401 ? 'INCORRECT_CREDENTIALS' : 'ERROR'
+            if (exception instanceof ErrorResponse && exception.errors?.some(e => e.code === ErrorCode.UNAUTHORIZED)) {
+                loginFormStore.result = LoginResult.IncorrectCredentials
+            } else {
+                loginFormStore.result = LoginResult.Failure
+            }
         }
 
         loginFormStore.submitting = false

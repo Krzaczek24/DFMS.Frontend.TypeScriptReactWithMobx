@@ -3,7 +3,11 @@ import { Form, FormField } from "../../models/forms"
 import StoreInterface from "../StoreInterface"
 import { makeAutoObservable } from "mobx"
 
-export type LoginResult = "SUCCESS" | "INCORRECT_CREDENTIALS" | "ERROR"
+export enum LoginResult {
+    Success = "SUCCESS",
+    IncorrectCredentials = "INCORRECT_CREDENTIALS",
+    Failure = "FAILURE"
+}
 
 export type LogonCredentials = {
     username: string

@@ -2,9 +2,9 @@ import { useTranslation } from 'react-i18next'
 import { Alert, Button, Col, Container, Row, Spinner } from 'react-bootstrap'
 import { FaAt, FaKey, FaLock, FaPen, FaUser } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
-import { useStores } from '../../stores'
-import FormField from '../../components/form-field/FormField'
-import { RegistrationResult } from '../../api/ApiClient'
+import { useStores } from './../../stores'
+import { RegistrationResult } from './../../stores/forms/RegistrationFormStore'
+import FormField from './../../components/form-field/FormField'
 import { Observer } from 'mobx-react'
 
 type ResultAlert = {
@@ -85,6 +85,7 @@ export const RegisterPage = () => {
                             auto-complete='username'
                             center-text
                             show-tooltip
+                            disabled={registrationFormStore.submitting}
                         />
                     </Col>
                     <Col md={columnWidth}>
@@ -97,6 +98,7 @@ export const RegisterPage = () => {
                             auto-complete='email'
                             center-text
                             show-tooltip
+                            disabled={registrationFormStore.submitting}
                         />
                     </Col>
                 </Row>
@@ -112,6 +114,7 @@ export const RegisterPage = () => {
                             type='password'
                             center-text
                             show-tooltip
+                            disabled={registrationFormStore.submitting}
                         />
                     </Col>
                     <Col md={columnWidth}>
@@ -125,6 +128,7 @@ export const RegisterPage = () => {
                             type='password'
                             center-text
                             show-tooltip
+                            disabled={registrationFormStore.submitting}
                             custom-validation-tooltips={{
                                 "the-same-as": s('validation.the-same-passwords')
                             }}
@@ -142,6 +146,7 @@ export const RegisterPage = () => {
                             auto-complete='given-name'
                             center-text
                             show-tooltip
+                            disabled={registrationFormStore.submitting}
                         />
                     </Col>
                     <Col md={columnWidth}>
@@ -154,6 +159,7 @@ export const RegisterPage = () => {
                             auto-complete='family-name'
                             center-text
                             show-tooltip
+                            disabled={registrationFormStore.submitting}
                         />
                     </Col>
                 </Row>

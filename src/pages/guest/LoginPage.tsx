@@ -7,6 +7,7 @@ import { Alert, Button, Col, Container, Row, Spinner } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom'
 import { FaKey, FaUser } from 'react-icons/fa'
 import FormField from '../../components/form-field/FormField'
+import { LoginResult } from '../../stores/forms/LoginFormStore'
 
 type ResultAlert = {
     variant: 'success' | 'warning' | 'danger'
@@ -27,7 +28,7 @@ export const LoginPage = () => {
 
         await authenticationStore.login()
 
-        if (loginFormStore.result === 'SUCCESS') {
+        if (loginFormStore.result === LoginResult.Success) {
             loginFormStore.form.clearAllFields()
             navigate('/')
         }
@@ -35,9 +36,9 @@ export const LoginPage = () => {
 
     const getAlertData = (): ResultAlert => {
         switch (loginFormStore.result) {
-            case 'INCORRECT_CREDENTIALS':
+            case LoginResult.IncorrectCredentials:
                 return { variant: 'warning', message: t('login.messages.incorrect-credentials') }
-            case 'ERROR':
+            case LoginResult.Failure:
                 return { variant: 'danger', message: t('login.messages.error') }
         }
     }
@@ -86,6 +87,7 @@ export const LoginPage = () => {
                             auto-complete='username'
                             center-text
                             show-tooltip
+                            disabled={loginFormStore.submitting}
                         />
                     </Col>
                 </Row>
@@ -102,6 +104,7 @@ export const LoginPage = () => {
                             auto-complete='current-password'
                             center-text
                             show-tooltip
+                            disabled={loginFormStore.submitting}
                         />
                     </Col>
                 </Row>
