@@ -76,91 +76,115 @@ export const RegisterPage = () => {
                 </Row>
                 <Row className='justify-content-md-center pt-3'>
                     <Col md={columnWidth}>
-                        <FormField
-                            icon={<FaUser />}
-                            field={registrationFormStore.form.fields.username}
-                            size='lg'
-                            placeholder={s('registration.form.username')}
-                            tooltip-variant='error'
-                            auto-complete='username'
-                            center-text
-                            show-tooltip
-                            disabled={registrationFormStore.submitting}
-                        />
+                        <Observer>
+                            {() => (
+                                <FormField
+                                    icon={<FaUser />}
+                                    field={registrationFormStore.form.fields.username}
+                                    size='lg'
+                                    placeholder={s('registration.form.username')}
+                                    tooltip-variant='error'
+                                    auto-complete='username'
+                                    center-text
+                                    show-tooltip
+                                    disabled={registrationFormStore.submitting}
+                                />
+                            )}
+                        </Observer>
                     </Col>
                     <Col md={columnWidth}>
-                        <FormField
-                            icon={<FaAt />}
-                            field={registrationFormStore.form.fields.email}
-                            size='lg'
-                            placeholder={s('registration.form.email')}
-                            tooltip-variant='error'
-                            auto-complete='email'
-                            center-text
-                            show-tooltip
-                            disabled={registrationFormStore.submitting}
-                        />
-                    </Col>
-                </Row>
-                <Row className='justify-content-md-center pt-3'>
-                    <Col md={columnWidth}>
-                        <FormField
-                            icon={<FaKey />}
-                            field={registrationFormStore.form.fields.password}
-                            size='lg'
-                            placeholder={s('registration.form.password')}
-                            tooltip-variant='error'
-                            auto-complete='off'
-                            type='password'
-                            center-text
-                            show-tooltip
-                            disabled={registrationFormStore.submitting}
-                        />
-                    </Col>
-                    <Col md={columnWidth}>
-                        <FormField
-                            icon={<FaLock />}
-                            field={registrationFormStore.form.fields.repeatPassword}
-                            size='lg'
-                            placeholder={s('registration.form.repeat-password')}
-                            tooltip-variant='error'
-                            auto-complete='off'
-                            type='password'
-                            center-text
-                            show-tooltip
-                            disabled={registrationFormStore.submitting}
-                            custom-validation-tooltips={{
-                                "the-same-as": s('validation.the-same-passwords')
-                            }}
-                        />
+                        <Observer>
+                            {() => (
+                                <FormField
+                                    icon={<FaAt />}
+                                    field={registrationFormStore.form.fields.email}
+                                    size='lg'
+                                    placeholder={s('registration.form.email')}
+                                    tooltip-variant='error'
+                                    auto-complete='email'
+                                    center-text
+                                    show-tooltip
+                                    disabled={registrationFormStore.submitting}
+                                />
+                            )}
+                        </Observer>
                     </Col>
                 </Row>
                 <Row className='justify-content-md-center pt-3'>
                     <Col md={columnWidth}>
-                        <FormField
-                            icon={<FaPen />}
-                            field={registrationFormStore.form.fields.firstName}
-                            size='lg'
-                            placeholder={s('registration.form.firstname')}
-                            tooltip-variant='error'
-                            auto-complete='given-name'
-                            center-text
-                            show-tooltip
-                            disabled={registrationFormStore.submitting}
-                        />
+                        <Observer>
+                            {() => (
+                                <FormField
+                                    icon={<FaKey />}
+                                    field={registrationFormStore.form.fields.password}
+                                    size='lg'
+                                    placeholder={s('registration.form.password')}
+                                    tooltip-variant='error'
+                                    auto-complete='off'
+                                    type='password'
+                                    center-text
+                                    show-tooltip
+                                    disabled={registrationFormStore.submitting}
+                                />
+                            )}
+                        </Observer>
                     </Col>
                     <Col md={columnWidth}>
-                        <FormField
-                            icon={<FaPen />}
-                            field={registrationFormStore.form.fields.lastName}
-                            size='lg'
-                            placeholder={s('registration.form.lastname')}
-                            tooltip-variant='error'
-                            auto-complete='family-name'
-                            center-text
-                            show-tooltip
-                            disabled={registrationFormStore.submitting}
-                        />
+                        <Observer>
+                            {() => (
+                                <FormField
+                                    icon={<FaLock />}
+                                    field={registrationFormStore.form.fields.repeatPassword}
+                                    size='lg'
+                                    placeholder={s('registration.form.repeat-password')}
+                                    tooltip-variant='error'
+                                    auto-complete='off'
+                                    type='password'
+                                    center-text
+                                    show-tooltip
+                                    disabled={registrationFormStore.submitting}
+                                    custom-validation-tooltips={{
+                                        "the-same-as": s('validation.the-same-passwords')
+                                    }}
+                                />
+                            )}
+                        </Observer>
+                    </Col>
+                </Row>
+                <Row className='justify-content-md-center pt-3'>
+                    <Col md={columnWidth}>
+                        <Observer>
+                            {() => (
+                                <FormField
+                                    icon={<FaPen />}
+                                    field={registrationFormStore.form.fields.firstName}
+                                    size='lg'
+                                    placeholder={s('registration.form.firstname')}
+                                    tooltip-variant='error'
+                                    auto-complete='given-name'
+                                    center-text
+                                    show-tooltip
+                                    disabled={registrationFormStore.submitting}
+                                />
+                            )}
+                        </Observer>
+                    </Col>
+                    <Col md={columnWidth}>
+                        <Observer>
+                            {() => (
+                                <FormField
+                                    icon={<FaPen />}
+                                    field={registrationFormStore.form.fields.lastName}
+                                    size='lg'
+                                    placeholder={s('registration.form.lastname')}
+                                    tooltip-variant='error'
+                                    auto-complete='family-name'
+                                    center-text
+                                    show-tooltip
+                                    disabled={registrationFormStore.submitting}
+                                />
+                            )}
+                        </Observer>
                     </Col>
                 </Row>
                 <Row className='justify-content-md-center pt-3'>

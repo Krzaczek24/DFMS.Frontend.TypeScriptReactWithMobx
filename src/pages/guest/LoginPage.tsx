@@ -77,35 +77,43 @@ export const LoginPage = () => {
                 </Row>
                 <Row className='justify-content-md-center pt-3'>
                     <Col md={width}>
-                        <FormField
-                            icon={<FaUser />}
-                            field={loginFormStore.form.fields.username}
-                            size='lg'
-                            placeholder={s('login.form.username')}
-                            tooltip-place='right'
-                            tooltip-variant='error'
-                            auto-complete='username'
-                            center-text
-                            show-tooltip
-                            disabled={loginFormStore.submitting}
-                        />
+                        <Observer>
+                            {() => (
+                                <FormField
+                                    icon={<FaUser />}
+                                    field={loginFormStore.form.fields.username}
+                                    size='lg'
+                                    placeholder={s('login.form.username')}
+                                    tooltip-place='right'
+                                    tooltip-variant='error'
+                                    auto-complete='username'
+                                    center-text
+                                    show-tooltip
+                                    disabled={loginFormStore.submitting}
+                                />
+                            )}
+                        </Observer>
                     </Col>
                 </Row>
                 <Row className='justify-content-md-center pt-3'>
                     <Col md={width}>
-                        <FormField
-                            icon={<FaKey />}
-                            field={loginFormStore.form.fields.password}
-                            type='password'
-                            size='lg'
-                            placeholder={s('login.form.password')}
-                            tooltip-place='right'
-                            tooltip-variant='error'
-                            auto-complete='current-password'
-                            center-text
-                            show-tooltip
-                            disabled={loginFormStore.submitting}
-                        />
+                        <Observer>
+                            {() => (
+                                <FormField
+                                    icon={<FaKey />}
+                                    field={loginFormStore.form.fields.password}
+                                    type='password'
+                                    size='lg'
+                                    placeholder={s('login.form.password')}
+                                    tooltip-place='right'
+                                    tooltip-variant='error'
+                                    auto-complete='current-password'
+                                    center-text
+                                    show-tooltip
+                                    disabled={loginFormStore.submitting}
+                                />
+                            )}
+                        </Observer>
                     </Col>
                 </Row>
                 <Row className='justify-content-md-center pt-3'>
