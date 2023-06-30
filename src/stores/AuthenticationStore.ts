@@ -114,7 +114,6 @@ class AuthenticationStore implements StoreInterface {
             return
         }
 
-        console.log(jwt_decode(tokenKey))
         let tokenRawData = jwt_decode(tokenKey) as TokenRawData
         this.tokenData = {
             key: tokenKey,
