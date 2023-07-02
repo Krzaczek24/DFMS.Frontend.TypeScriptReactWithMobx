@@ -31,7 +31,7 @@ const LanguageSelector = (props: SelectLanuageProps) => {
         <div className='language-container'>
             <InputGroup size='lg'>
                 <InputGroup.Text id='language-label'>
-                    {t('common.language-label')}
+                    {t('common.language.label')}
                 </InputGroup.Text>
                 <Form.Select id='language-select' size='lg' defaultValue={i18n.language} onChange={e => i18n.changeLanguage(e.target.value)}>
                     {Object.keys(i18nConfig.supportedLocales).sort().map(key => renderOption(key, i18nConfig.supportedLocales[key]))}

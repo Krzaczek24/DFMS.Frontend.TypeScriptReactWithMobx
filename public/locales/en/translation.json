@@ -1,9 +1,17 @@
 {
     "common": {
-        "language-label": "Language",
+        "language": {
+            "label": "Language"
+        },
         "please-wait": "Please wait",
         "processing": "Processing",
-        "api-status-label": "API status"
+        "api-status": {
+            "label": "API status",
+            "description": {
+                "alive": "Server is up and running",
+                "dead": "Server is unavailable"
+            }
+        }
     },
     "navmenu": {
         "logout": "Log out"

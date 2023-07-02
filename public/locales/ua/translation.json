@@ -1,9 +1,17 @@
 {
     "common": {
-        "language-label": "Язик",
+        "language": {
+            "label": "Язик"
+        },
         "please-wait": "Будь ласка, зачекайте",
         "processing": "Обробка",
-        "api-status-label": "Статус API"
+        "api-status": {
+            "label": "Статус API",
+            "description": {
+                "alive": "Сервер запущений і працює",
+                "dead": "Сервер недоступний"
+            }
+        }
     },
     "navmenu": {
         "logout": "Вийти"
