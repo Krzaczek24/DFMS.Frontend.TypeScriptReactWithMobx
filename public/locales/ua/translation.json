@@ -1,8 +1,9 @@
 {
     "common": {
-        "language": "Язик",
+        "language-label": "Язик",
         "please-wait": "Будь ласка, зачекайте",
-        "processing": "Обробка"
+        "processing": "Обробка",
+        "api-status-label": "Статус API"
     },
     "navmenu": {
         "logout": "Вийти"

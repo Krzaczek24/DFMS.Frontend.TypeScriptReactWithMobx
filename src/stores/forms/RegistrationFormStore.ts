@@ -1,7 +1,7 @@
-import RootStore from ".."
-import { Form, FormField } from "../../models/forms"
-import StoreInterface from "../StoreInterface"
-import { makeAutoObservable } from "mobx"
+import RootStore from '..'
+import { Form, FormField } from '../../models/forms'
+import StoreInterface from '../StoreInterface'
+import { makeAutoObservable } from 'mobx'
 
 export type RegistrationData = {
     username: string
@@ -44,12 +44,12 @@ class RegistrationFormStore implements StoreInterface {
     }
 
     form = new Form({
-        username: new FormField([{ type: "required" }, { type: "min-length", restriction: 3 }]),
-        password: new FormField([{ type: "required" }, { type: "password" }]),
-        repeatPassword: new FormField([{ type: "required" }, { type: "the-same-as", restriction: "password" }]),
-        firstName: new FormField([{ type: "min-length", restriction: 3 }, { type: "name" }]),
-        lastName: new FormField([{ type: "min-length", restriction: 3 }, { type: "name" }]),
-        email: new FormField([{ type: "e-mail" }])
+        username: new FormField([{ type: 'required' }, { type: 'min-length', restriction: 3 }]),
+        password: new FormField([{ type: 'required' }, { type: 'password' }]),
+        repeatPassword: new FormField([{ type: 'required' }, { type: 'the-same-as', restriction: 'password' }]),
+        firstName: new FormField([{ type: 'min-length', restriction: 3 }, { type: 'name' }]),
+        lastName: new FormField([{ type: 'min-length', restriction: 3 }, { type: 'name' }]),
+        email: new FormField([{ type: 'e-mail' }])
     }, () => { this.result = undefined })
 }
 

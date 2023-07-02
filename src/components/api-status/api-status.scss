@@ -1,0 +1,40 @@
+.api-status-container {
+    $dotSize: 16px;
+
+    .dot {
+        height: $dotSize;
+        width: $dotSize;
+        scale: 1;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .green {
+        background-image: radial-gradient(green 45%, yellow 100%);
+    }
+
+    .red {
+        background-image: radial-gradient(red 45%, yellow 100%);
+    }
+
+    .animate {
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+        }
+
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+        }
+
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+        }
+    }
+}

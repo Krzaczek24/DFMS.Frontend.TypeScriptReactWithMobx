@@ -1,6 +1,6 @@
-import i18n from "../../i18n"
-import { useTranslation } from "react-i18next"
-import { Form, InputGroup } from "react-bootstrap"
+import i18n from '../../i18n'
+import { useTranslation } from 'react-i18next'
+import { Form, InputGroup } from 'react-bootstrap'
 
 interface I18nConfig {
     supportedLocales: {
@@ -10,9 +10,9 @@ interface I18nConfig {
 
 const i18nConfig: I18nConfig = {
     supportedLocales: {
-        en: "English",
-        pl: "Polski",
-        ua: "Українська"
+        en: 'English',
+        pl: 'Polski',
+        ua: 'Українська'
     }
 }
 
@@ -25,15 +25,15 @@ interface SelectLanuageProps {
     onChange?(value: string): void
 }
 
-const SelectLanguage = (props: SelectLanuageProps) => {
+const LanguageSelector = (props: SelectLanuageProps) => {
     const { t } = useTranslation()
     return (
-        <div className="language-container">
-            <InputGroup size="lg">
-                <InputGroup.Text id="language">
-                    {t("common.language")}
+        <div className='language-container'>
+            <InputGroup size='lg'>
+                <InputGroup.Text id='language-label'>
+                    {t('common.language-label')}
                 </InputGroup.Text>
-                <Form.Select id="change-language-select" size="lg" defaultValue={i18n.language} onChange={e => i18n.changeLanguage(e.target.value)}>
+                <Form.Select id='language-select' size='lg' defaultValue={i18n.language} onChange={e => i18n.changeLanguage(e.target.value)}>
                     {Object.keys(i18nConfig.supportedLocales).sort().map(key => renderOption(key, i18nConfig.supportedLocales[key]))}
                 </Form.Select>
             </InputGroup> 
@@ -41,4 +41,4 @@ const SelectLanguage = (props: SelectLanuageProps) => {
     )
 }
 
-export default SelectLanguage
+export default LanguageSelector

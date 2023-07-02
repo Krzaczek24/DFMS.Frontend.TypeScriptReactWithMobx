@@ -1,7 +1,7 @@
-import { ReactElement } from "react"
-import { Navigate } from "react-router-dom"
-import { useStores } from "../../../stores"
-import { Role } from "../../../stores/AuthenticationStore"
+import { ReactElement } from 'react'
+import { Navigate } from 'react-router-dom'
+import { useStores } from '../../../stores'
+import { Role } from '../../../stores/AuthenticationStore'
 
 type ProtectedProps = {
     element: ReactElement,

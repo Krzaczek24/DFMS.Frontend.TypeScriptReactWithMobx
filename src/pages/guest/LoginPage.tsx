@@ -122,7 +122,7 @@ export const LoginPage = () => {
                             {() => (
                                 <Button variant='primary' size='lg' onClick={submit} disabled={loginFormStore.submitting}>
                                     {loginFormStore.submitting ?
-                                        <span>{t('common.please-wait')} <Spinner animation="border" variant="light" size="sm" /></span> :
+                                        <span>{t('common.please-wait')} <Spinner animation='border' variant='light' size='sm' /></span> :
                                         <span>{t('login.form.sign-in')}</span>
                                     }
                                 </Button>

@@ -1,12 +1,12 @@
-import RootStore from ".."
-import { Form, FormField } from "../../models/forms"
-import StoreInterface from "../StoreInterface"
-import { makeAutoObservable } from "mobx"
+import RootStore from '..'
+import { Form, FormField } from '../../models/forms'
+import StoreInterface from '../StoreInterface'
+import { makeAutoObservable } from 'mobx'
 
 export enum LoginResult {
-    Success = "SUCCESS",
-    IncorrectCredentials = "INCORRECT_CREDENTIALS",
-    Failure = "FAILURE"
+    Success = 'SUCCESS',
+    IncorrectCredentials = 'INCORRECT_CREDENTIALS',
+    Failure = 'FAILURE'
 }
 
 export type LogonCredentials = {
@@ -38,8 +38,8 @@ class LoginFormStore implements StoreInterface {
     }
 
     form = new Form({
-        username: new FormField([{ type: "required" }]),
-        password: new FormField([{ type: "required" }])
+        username: new FormField([{ type: 'required' }]),
+        password: new FormField([{ type: 'required' }])
     }, () => { this.result = undefined })
 }
 

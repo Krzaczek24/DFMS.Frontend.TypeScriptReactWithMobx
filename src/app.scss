@@ -62,8 +62,16 @@ $navbar-width: 200px;
   height: 100vh;
 }
 
+$margin: 5px;
+
 .language-container {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: $margin;
+  right: $margin;
+}
+
+.api-status-container {
+  position: absolute;
+  bottom: $margin;
+  right: $margin;
 }

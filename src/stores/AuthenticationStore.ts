@@ -1,12 +1,11 @@
-import { IAuthenticationClient, AuthenticationClient, LogonInput, RegisterInput, ErrorResponse, ErrorCode } from "../api/ApiClient"
-import StoreInterface from "./StoreInterface"
-import RootStore from "."
-import { makeAutoObservable } from "mobx"
-import { sha512 } from "sha512-crypt-ts";
-import { ApiException } from "../api/ApiClient"
-import jwt_decode from "jwt-decode"
-import { RegistrationResult } from "./forms/RegistrationFormStore"
-import { LoginResult } from "./forms/LoginFormStore"
+import { IAuthenticationClient, AuthenticationClient, LogonInput, RegisterInput, ErrorResponse, ErrorCode } from '../api/ApiClient'
+import StoreInterface from './StoreInterface'
+import RootStore from '.'
+import { makeAutoObservable } from 'mobx'
+import { sha512 } from 'sha512-crypt-ts';
+import jwt_decode from 'jwt-decode'
+import { RegistrationResult } from './forms/RegistrationFormStore'
+import { LoginResult } from './forms/LoginFormStore'
 
 const tokenLocalStorageKey = 'tokenKey'
 const api = new AuthenticationClient() as IAuthenticationClient

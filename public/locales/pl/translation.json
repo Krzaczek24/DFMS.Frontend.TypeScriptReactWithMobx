@@ -1,8 +1,9 @@
 {
     "common": {
-        "language": "Język",
+        "language-label": "Język",
         "please-wait": "Proszę czekać",
-        "processing": "Przetwarzanie"
+        "processing": "Przetwarzanie",
+        "api-status-label": "Status API"
     },
     "navmenu": {
         "logout": "Wyloguj"

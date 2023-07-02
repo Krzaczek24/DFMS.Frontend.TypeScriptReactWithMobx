@@ -1,4 +1,4 @@
-import RootStore from "."
+import RootStore from '.'
 
 interface StoreInterface {
     rootStore: RootStore
