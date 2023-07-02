@@ -14,6 +14,10 @@
         }
     },
     "navmenu": {
+        "users": "Користувачі",
+        "permissions": "Дозволи",
+        "profile": "Профіль",
+        "settings": "Налаштування",
         "logout": "Вийти"
     },
     "guest-screen": {

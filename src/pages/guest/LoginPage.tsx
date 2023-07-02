@@ -155,6 +155,21 @@ export const LoginPage = () => {
                         </Link>
                     </Col>
                 </Row>
+
+                {/* ...:::...:::... <<< HAVE TO BE REMOVED >>> ...:::...:::... */}
+                <Row className='justify-content-md-center pt-3'>
+                    <Col md={width-1}>
+                        <hr />
+                        <Button variant='danger' onClick={() => {
+                            loginFormStore.form.fields.username.value = 'Krzaczek'
+                            loginFormStore.form.fields.password.value = 'Krzaczek'
+                            submit()
+                        }}>
+                            <FaKey />&nbsp;&nbsp;&nbsp;FAST LOGIN&nbsp;&nbsp;&nbsp;<FaKey />
+                        </Button>
+                    </Col>
+                </Row>
+                {/* ...:::...:::... <<< HAVE TO BE REMOVED >>> ...:::...:::... */}
             </Container>
         </div>
     )

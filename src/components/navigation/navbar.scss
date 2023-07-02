@@ -1,3 +1,12 @@
+$logo-color: silver;
+$logo-color-alternative: indigo;
+$default-icon-color: indigo;
+$default-text-color: white;
+$hover-icon-color: white;
+$hover-text-color: darkviolet;
+$active-icon-color: green;
+$active-text-color: white;
+
 .navbar {
     height: 100%;
     width: 100%;
@@ -15,28 +24,53 @@
             padding: 5px;
             margin: 2px 5px;
 
+            &.main a {
+                font-family: 'AppleTea';
+                color: $logo-color;
+                text-align: center;
+                font-size: 2em;
+                text-shadow: 0.07em 0.1em $logo-color-alternative;
+
+                &:hover {
+                    color: $logo-color-alternative!important;
+                    text-shadow: 0.04em 0.06em $logo-color;
+                }
+            }
+
+            &:not(.main) {
+                a.active {
+                    color: $active-text-color;
+                    font-weight: bold;
+
+                    svg {
+                        color: $active-icon-color;
+                    }
+                }
+            }
+
             a {
                 display: block;
                 text-decoration: none;
-                color: white;
+                color: $default-text-color;
 
                 &:link, &:visited, &:hover, &:active {
                     text-decoration: none;
                 }
 
                 &:hover {
-                    color: red;
+                    color: $hover-text-color!important;
+
+                    &:not(.active) svg {
+                        color: $hover-icon-color!important;
+                    }
                 }
     
                 svg {
                     height: 1.25em;
                     width: 1.25em;
-                    margin-right: 10px;
-                    color: darkviolet;
-                }
-
-                &:hover svg {
-                    color: green;
+                    margin-right: 8px;
+                    margin-top: -6px;
+                    color: $default-icon-color;
                 }
             }
         }

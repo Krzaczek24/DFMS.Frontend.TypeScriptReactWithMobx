@@ -14,6 +14,10 @@
         }
     },
     "navmenu": {
+        "users": "Users",
+        "permissions": "Permissions",
+        "profile": "Profile",
+        "settings": "Settings",
         "logout": "Log out"
     },
     "guest-screen": {

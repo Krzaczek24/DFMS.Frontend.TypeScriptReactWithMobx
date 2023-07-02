@@ -28,7 +28,7 @@ const ApiStatus = () => {
                     <Tooltip
                         anchorId={dotId}
                         variant='info'
-                        place='top-end'
+                        place='top'
                         offset={5}
                     />
                 </div>
