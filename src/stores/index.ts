@@ -3,11 +3,14 @@ import AuthenticationStore from './AuthenticationStore'
 import LoginFormStore from './forms/LoginFormStore'
 import RegistrationFormStore from './forms/RegistrationFormStore'
 import PermissionStore from './PermissionStore'
-import TechnicalStore from './TechnicalStore'
+import PingStore from './PingStore'
 import UserStore from './UserStore'
 
 class RootStore {
-    technicalStore: TechnicalStore
+    private static storeInstance: RootStore
+    public static get instance() { return this.storeInstance ??= new RootStore() }
+
+    pingStore: PingStore
 
     loginFormStore: LoginFormStore
     registrationFormStore: RegistrationFormStore
@@ -17,7 +20,7 @@ class RootStore {
     userStore: UserStore
 
     constructor() {
-        this.technicalStore = new TechnicalStore(this)
+        this.pingStore = new PingStore(this)
 
         this.loginFormStore = new LoginFormStore(this)
         this.registrationFormStore = new RegistrationFormStore(this)
@@ -30,6 +33,6 @@ class RootStore {
 
 export default RootStore
 
-const StoresContext = React.createContext(new RootStore())
+const StoresContext = React.createContext(RootStore.instance)
 
 export const useStores = () => React.useContext(StoresContext)

@@ -1,6 +1,6 @@
-export class ApiBaseClient {
-    constructor() { }
-    
+import { v4 as guid } from 'uuid';
+
+export abstract class BaseClient {
     protected getBaseUrl = (defaultUrl: string, baseUrl?: string): string => {
         if (baseUrl != null)
             return baseUrl
@@ -11,12 +11,15 @@ export class ApiBaseClient {
     }
 
     protected transformOptions = async (options: RequestInit): Promise<RequestInit> => {
-        const token = localStorage.getItem('tokenKey')
-        options.headers = { ...options.headers, authorization: `Bearer ${token}` }
+        this.addRequestGuid(options)
         return Promise.resolve(options)
     }
 
-    protected transformResult(url: string, response: Response, processor: (response: Response) => Promise<any>): Promise<any> { 
+    protected transformResult = (url: string, response: Response, processor: (response: Response) => Promise<any>): Promise<any> => { 
         return processor(response);
+    }
+
+    protected addRequestGuid = (options: RequestInit) => {
+        options.headers = { ...options.headers, RequestId: guid() }
     }
 }

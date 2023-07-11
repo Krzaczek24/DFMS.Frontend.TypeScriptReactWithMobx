@@ -1,30 +1,17 @@
-import { IAuthenticationClient, AuthenticationClient, LogonInput, RegisterInput, ErrorResponse, ErrorCode } from '../api/ApiClient'
 import StoreInterface from './StoreInterface'
 import RootStore from '.'
+import { IAuthenticationClient, AuthenticationClient, LogonInput, RegisterInput, ErrorResponse, ErrorCode, RefreshInput, AuthenticateOutput } from './../clients/auth/AuthClient'
+import { ILogoutClient, LogoutClient } from './../clients/api/ApiClient'
 import { makeAutoObservable } from 'mobx'
 import { sha512 } from 'sha512-crypt-ts';
-import jwt_decode from 'jwt-decode'
 import { RegistrationResult } from './forms/RegistrationFormStore'
 import { LoginResult } from './forms/LoginFormStore'
+import TokenManager, { Token, TokenData } from './../tools/TokenManager'
 
-const tokenLocalStorageKey = 'tokenKey'
-const api = new AuthenticationClient() as IAuthenticationClient
+const authClient = new AuthenticationClient() as IAuthenticationClient
+const logoutClient = new LogoutClient() as ILogoutClient
 
 export type Role = 'ADMIN' | 'MODERATOR' | 'MANAGER' | 'USER' | 'BLOCKED'
-
-type TokenRawData = {
-    id: number
-    login: string
-    role: Role
-    permissions: string[]
-    firstName: string | undefined
-    lastName: string | undefined
-    createdAt: string
-    lastLoginDate: string | undefined
-    currentLoginDate: string
-    iat: number
-    exp: number
-}
 
 export class User {
     id!: number
@@ -38,7 +25,7 @@ export class User {
     lastLoginDate: Date | undefined
     currentLoginDate!: Date
 
-    constructor(tokenData: TokenRawData) {
+    constructor(tokenData: TokenData) {
         var targetProps = Object.keys(this)
 
         Object.assign(this, tokenData)
@@ -61,65 +48,40 @@ export class User {
     hasAllPermissions = (permissions: string[]): boolean => permissions.every(this.hasPermission)
 }
 
-export type Token = {
-    key: string
-    issueDate: Date
-    expirationDate: Date
-}
-
 class AuthenticationStore implements StoreInterface {
     rootStore: RootStore
 
     constructor(rootStore: RootStore) {
         this.rootStore = rootStore
-        this.userData = null
-        this.tokenData = null
-        this.setTokenAndUserData(this.tokenKey)
+        this.userInfo = null
+        this.tokenInfo = null
+        this.setTokenAndUserData()
         makeAutoObservable(this)
     }
 
-    private userData: User | null
-    private tokenData: Token | null
-
-    private get tokenKey () {
-        return localStorage.getItem(tokenLocalStorageKey)
+    private userInfo: User | null
+    get user() {
+        return this.userInfo
     }
-    private set tokenKey (value: string | null) {
-        if (value) {
-            localStorage.setItem(tokenLocalStorageKey, value)
-        } else {
-            localStorage.removeItem(tokenLocalStorageKey)
-        }
 
-        this.setTokenAndUserData(value)
-    }
+    private tokenInfo: Token | null
 
     get isAuthenticated () {
-        return this.tokenData && this.tokenData.expirationDate > new Date()
+        return this.tokenInfo && this.tokenInfo.expirationDate > new Date()
     }
 
-    get user() {
-        return this.userData
-    }
-
-    get token() {
-        return this.tokenData
-    }
-
-    private setTokenAndUserData = (tokenKey: string | null) => {
-        if (!tokenKey) {
-            this.tokenData = null
-            this.userData = null
-            return
+    private setTokenAndUserData = () => {
+        this.tokenInfo = TokenManager.getToken()
+        if (this.tokenInfo?.key) {
+            let tokenData = TokenManager.decodeKey(this.tokenInfo.key)
+            if (tokenData) {
+                this.userInfo = new User(tokenData)
+                return
+            }
         }
 
-        let tokenRawData = jwt_decode(tokenKey) as TokenRawData
-        this.tokenData = {
-            key: tokenKey,
-            issueDate: new Date(tokenRawData.iat * 1000),
-            expirationDate: new Date(tokenRawData.exp * 1000)
-        }
-        this.userData = new User(tokenRawData)
+        this.tokenInfo = null
+        this.userInfo = null
     }
 
     register = async() => {
@@ -134,7 +96,7 @@ class AuthenticationStore implements StoreInterface {
         const { username, password, firstName, lastName, email } = registrationFormStore.registrationData
         
         try {
-            await api.register(new RegisterInput({
+            await authClient.register(new RegisterInput({
                 username,
                 passwordHash: sha512.base64(password),
                 firstName,
@@ -165,14 +127,10 @@ class AuthenticationStore implements StoreInterface {
         const { username, password } = loginFormStore.logonCredentials
 
         try {
-            let token = await api.authenticate(new LogonInput({
+            this.handleAuthResponse((await authClient.login(new LogonInput({
                 username,
                 passwordHash: sha512.base64(password)
-            }))
-
-            if (token) {
-                this.tokenKey = token.result.token ?? null
-            }
+            }))).result)
 
             loginFormStore.result = this.isAuthenticated ? LoginResult.Success : LoginResult.IncorrectCredentials
         } catch (exception) {
@@ -186,12 +144,28 @@ class AuthenticationStore implements StoreInterface {
         loginFormStore.submitting = false
     }
 
-    logout = () => {
-        if (!this.isAuthenticated) {
-            return
-        }
+    refreshToken = async (refreshToken: string) => {
+        const response = (await authClient.refreshToken(new RefreshInput({ refreshToken }))).result
+        this.handleAuthResponse(response)
+    }
 
-        this.tokenKey = null
+    private handleAuthResponse = (response: AuthenticateOutput) => {
+        if (response) {
+            TokenManager.setKeys(response.accessToken, response.refreshToken)
+            this.setTokenAndUserData()
+        }
+    }
+
+    logout = async () => {
+        await logoutClient.logout()
+        TokenManager.setKeys(null, null)
+        this.setTokenAndUserData()
+    }
+
+    logoutAllMachines = async () => {
+        await logoutClient.logoutAllMachines()
+        TokenManager.setKeys(null, null)
+        this.setTokenAndUserData()
     }
 }
 

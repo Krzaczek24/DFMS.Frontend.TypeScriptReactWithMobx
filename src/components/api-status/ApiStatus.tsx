@@ -3,10 +3,10 @@ import { Observer } from 'mobx-react'
 import { InputGroup } from 'react-bootstrap'
 import { Tooltip } from 'react-tooltip'
 import { useTranslation } from 'react-i18next'
-import { useStores } from '../../stores'
+import { useStores } from './../../stores'
 
 const ApiStatus = () => {
-    const { technicalStore } = useStores()
+    const { pingStore } = useStores()
     const { t } = useTranslation()
     const dotId = 'api-status-dot'
     return (
@@ -20,8 +20,8 @@ const ApiStatus = () => {
                         <InputGroup.Text>
                             <span
                                 id={dotId}
-                                className={`dot ${technicalStore.isAlive ? 'green' : 'red'}${technicalStore.playAnimation ? ' animate' : ''}`}
-                                data-tooltip-content={t(`common.api-status.description.${technicalStore.isAlive ? 'alive' : 'dead'}`)}
+                                className={`dot ${pingStore.isAlive ? 'green' : 'red'}${pingStore.playAnimation ? ' animate' : ''}`}
+                                data-tooltip-content={t(`common.api-status.description.${pingStore.isAlive ? 'alive' : 'dead'}`)}
                             />
                         </InputGroup.Text>
                     </InputGroup>

@@ -1,7 +1,7 @@
 import RootStore from '.'
 import StoreInterface from './StoreInterface'
 import { makeAutoObservable } from 'mobx'
-import { ITechnicalClient, TechnicalClient } from '../api/ApiClient'
+import { ITechnicalClient, TechnicalClient } from '../clients/api/ApiClient'
 
 const api = new TechnicalClient() as ITechnicalClient
 
