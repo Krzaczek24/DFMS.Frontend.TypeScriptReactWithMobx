@@ -157,15 +157,21 @@ class AuthenticationStore implements StoreInterface {
     }
 
     logout = async () => {
+        const loaderStore = this.rootStore.loaderStore;
+        loaderStore.show()
         await logoutClient.logout()
         TokenManager.setKeys(null, null)
         this.setTokenAndUserData()
+        loaderStore.hide()
     }
 
     logoutAllMachines = async () => {
+        const loaderStore = this.rootStore.loaderStore;
+        loaderStore.show()
         await logoutClient.logoutAllMachines()
         TokenManager.setKeys(null, null)
         this.setTokenAndUserData()
+        loaderStore.hide()
     }
 }
 

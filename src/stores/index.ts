@@ -1,5 +1,6 @@
 import React from 'react'
 import AuthenticationStore from './AuthenticationStore'
+import LoaderStore from './LoaderStore'
 import LoginFormStore from './forms/LoginFormStore'
 import RegistrationFormStore from './forms/RegistrationFormStore'
 import PermissionStore from './PermissionStore'
@@ -10,6 +11,7 @@ class RootStore {
     private static storeInstance: RootStore
     public static get instance() { return this.storeInstance ??= new RootStore() }
 
+    loaderStore: LoaderStore
     pingStore: PingStore
 
     loginFormStore: LoginFormStore
@@ -20,6 +22,7 @@ class RootStore {
     userStore: UserStore
 
     constructor() {
+        this.loaderStore = new LoaderStore(this)
         this.pingStore = new PingStore(this)
 
         this.loginFormStore = new LoginFormStore(this)
