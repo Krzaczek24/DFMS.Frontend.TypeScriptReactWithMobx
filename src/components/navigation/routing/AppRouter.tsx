@@ -30,7 +30,7 @@ const AppRouter = () => {
                             <Route path='/' element={<ProtectedRoute element={<HomePage />} notAllowedPathOrElement={<GreetingPage />} />} />
                             <Route path='/login' element={<ProtectedRoute element={<Navigate to='/' />} notAllowedPathOrElement={<LoginPage />} />} />
                             <Route path='/registration' element={<ProtectedRoute element={<Navigate to='/' />} notAllowedPathOrElement={<RegisterPage />} />} />
-                            <Route path='/user-management' element={<ProtectedRoute element={<UserManagemenetPage />} />} />
+                            <Route path='/user-management' element={<ProtectedRoute roles={['ADMIN']} element={<UserManagemenetPage />} />} />
                             <Route path='/permission-management' element={<ProtectedRoute element={<PermissionManagementPage />} />} />
                             <Route path='/profile' element={<ProtectedRoute element={<ProfilePage />} />} />
                             <Route path='/settings' element={<ProtectedRoute element={<SettingsPage />} />} />

@@ -10,7 +10,7 @@ class LoaderStore implements StoreInterface {
         makeAutoObservable(this)
     }
 
-    private _isLoading: boolean = true
+    private _isLoading: boolean = false
     get isLoading() { return this._isLoading }
     private set isLoading(value) { this._isLoading = value }
 

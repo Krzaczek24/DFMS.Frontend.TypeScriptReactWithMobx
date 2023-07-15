@@ -165,7 +165,18 @@ export const LoginPage = () => {
                             loginFormStore.form.fields.password.value = 'Krzaczek'
                             submit()
                         }}>
-                            <FaKey />&nbsp;&nbsp;&nbsp;FAST LOGIN&nbsp;&nbsp;&nbsp;<FaKey />
+                            <FaKey />&nbsp;&nbsp;&nbsp;ADMIN&nbsp;&nbsp;&nbsp;<FaKey />
+                        </Button>
+                    </Col>
+                </Row>
+                <Row className='justify-content-md-center pt-3'>
+                    <Col md={width-1}>
+                        <Button variant='danger' onClick={() => {
+                            loginFormStore.form.fields.username.value = 'Tomek'
+                            loginFormStore.form.fields.password.value = 'T0m3k$$$'
+                            submit()
+                        }}>
+                            <FaKey />&nbsp;&nbsp;&nbsp;USER&nbsp;&nbsp;&nbsp;<FaKey />
                         </Button>
                     </Col>
                 </Row>

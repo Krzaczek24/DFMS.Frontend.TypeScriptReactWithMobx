@@ -11,7 +11,7 @@ import TokenManager, { Token, TokenData } from './../tools/TokenManager'
 const authClient = new AuthenticationClient() as IAuthenticationClient
 const logoutClient = new LogoutClient() as ILogoutClient
 
-export type Role = 'ADMIN' | 'MODERATOR' | 'MANAGER' | 'USER' | 'BLOCKED'
+export type Role = 'ADMIN' | 'MODERATOR' | 'MANAGER' | 'USER' | 'INVITEE' | 'APPLICANT' | 'BLOCKED'
 
 export class User {
     id!: number
@@ -46,6 +46,18 @@ export class User {
     hasPermission = (permission: string): boolean => this.permissions?.includes(permission)
     hasAnyPermission = (permissions: string[]): boolean => permissions.some(this.hasPermission)
     hasAllPermissions = (permissions: string[]): boolean => permissions.every(this.hasPermission)
+
+    hasAccess = (roles?: Array<Role>, permissions?: Array<string>): boolean => {
+        if (roles && roles.length > 0 && roles.every((role) => this.role !== role)) {
+            return false
+        }
+
+        if (permissions && permissions.length > 0 && !this.hasAnyPermission(permissions)) {
+            return false
+        }
+
+        return true
+    }
 }
 
 class AuthenticationStore implements StoreInterface {
